@@ -1,0 +1,123 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>http://www.cisco.com/en/US/tech/tk648/tk362/technologies_tech_note09186a00801c6035.shtml</p>
+<p>These steps are well documented, but some details still required trial and error. It is not exactly the same (neither the OID nor the pattern) as TP-Link.</p>
+<p>Set the vtpVlanEditOperation to the copy state (integer 2). This allows you to create the VLAN.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditOperation</span><span class="o">.</span><span class="mi">1</span> <span class="n">i</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>This example is VLAN 7, create a row and set the type and name.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditRowStatus</span><span class="o">.</span><span class="mf">1.7</span> <span class="n">i</span> <span class="mi">4</span>
+<span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditType</span><span class="o">.</span><span class="mf">1.7</span> <span class="n">i</span> <span class="mi">1</span>
+<span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditName</span><span class="o">.</span><span class="mf">1.7</span> <span class="n">s</span> <span class="s2">&quot;vlan_7&quot;</span>
+</pre></div>
+</div>
+<p>Set the vtpVlanEditDot10Said. This is the VLAN number + 100000 translated to hexadecimal. This example creates VLAN 7, so the vtpVlanEditDot10Said should be: 11 + 100000 = 100007 -&gt; Hex: 000186A7</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditDot10Said</span><span class="o">.</span><span class="mf">1.7</span> <span class="n">x</span> <span class="mi">000186</span><span class="n">A7</span>
+</pre></div>
+</div>
+<p>When you have created VLAN 7, you must apply the modifications.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">snmpset</span> <span class="o">-</span><span class="n">v2c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="n">vtpVlanEditOperation</span><span class="o">.</span><span class="mi">1</span> <span class="n">i</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>One step instruction to set vlan 6.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">snmpset</span> <span class="o">-</span><span class="n">v</span> <span class="mi">2</span><span class="n">c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">1.1</span><span class="o">.</span><span class="mi">1</span> <span class="n">i</span> <span class="mi">2</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">1.3</span><span class="o">.</span><span class="mi">1</span> <span class="n">s</span> <span class="s2">&quot;mocuser&quot;</span> 
+<span class="n">snmpset</span> <span class="o">-</span><span class="n">v</span> <span class="mi">2</span><span class="n">c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.2</span><span class="o">.</span><span class="mf">1.11</span><span class="o">.</span><span class="mf">1.6</span> <span class="n">i</span> <span class="mi">4</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.2</span><span class="o">.</span><span class="mf">1.3</span><span class="o">.</span><span class="mf">1.6</span> <span class="n">i</span> <span class="mi">1</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.2</span><span class="o">.</span><span class="mf">1.4</span><span class="o">.</span><span class="mf">1.6</span> <span class="n">s</span> <span class="s2">&quot;vlan6&quot;</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.2</span><span class="o">.</span><span class="mf">1.6</span><span class="o">.</span><span class="mf">1.6</span> <span class="n">x</span> <span class="mi">000186</span><span class="n">A6</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">1.1</span><span class="o">.</span><span class="mi">1</span> <span class="n">i</span> <span class="mi">3</span>
+<span class="n">snmpset</span> <span class="o">-</span><span class="n">v</span> <span class="mi">2</span><span class="n">c</span> <span class="o">-</span><span class="n">c</span> <span class="n">private</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">1.1</span><span class="o">.</span><span class="mi">1</span> <span class="n">i</span> <span class="mi">4</span>
+<span class="n">snmpwalk</span> <span class="o">-</span><span class="n">v</span> <span class="mi">2</span><span class="n">c</span> <span class="o">-</span><span class="n">c</span> <span class="n">public</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.254</span> <span class="mf">1.3</span><span class="o">.</span><span class="mf">6.1</span><span class="o">.</span><span class="mf">4.1</span><span class="o">.</span><span class="mf">9.9</span><span class="o">.</span><span class="mf">46.1</span><span class="o">.</span><span class="mf">3.1</span><span class="o">.</span><span class="mf">1.2</span>
+</pre></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Setting-vlan-via-snmp-(cisco).md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

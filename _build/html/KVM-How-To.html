@@ -1,0 +1,174 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Set up interfaces manually, avoiding conflicts with, e.g., network manager &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>kvm how-to (<em>complete</em> work in progress, primarily notes)
+useful reference: http://gmplib.org/~tege/qemu.html</p>
+<ol class="simple">
+<li>Set up public and private networks for VMS to bridge to (Ian's file net.sh). Public and private nics must be set to promiscuous.</li>
+</ol>
+<p><em>Questions:</em> Do we need to install bridge-utils?</p>
+<p>auto br0
+iface br0 inet dhcp
+hwaddress ether 00:06:5B:3C:44:BF
+bridge_ports    eth0
+bridge_stp      off
+bridge_maxwait  0
+bridge_fd       0</p>
+<div class="section" id="set-up-interfaces-manually-avoiding-conflicts-with-e-g-network-manager">
+<span id="set-up-interfaces-manually-avoiding-conflicts-with-e-g-network-manager"></span><h1>Set up interfaces manually, avoiding conflicts with, e.g., network manager<a class="headerlink" href="#set-up-interfaces-manually-avoiding-conflicts-with-e-g-network-manager" title="Permalink to this headline">¶</a></h1>
+<p>iface eth0 inet manual</p>
+<p>iface eth1 inet manual</p>
+</div>
+<div class="section" id="bridge-setup">
+<span id="bridge-setup"></span><h1>Bridge setup<a class="headerlink" href="#bridge-setup" title="Permalink to this headline">¶</a></h1>
+<p>iface br1 inet dhcp
+hwaddress ether 00:06:5B:3C:44:BF
+bridge_ports eth1</p>
+<p>iface br2 inet static
+hwaddress ether 00:06:5B:3C:44:BE</p>
+<ol class="simple">
+<li>$ apt-get install qemu-kvm</li>
+<li>create vm insterfaces, owned by user, to hand to vms
+$ sudo tunctl -u <user> -t tap<n></li>
+</ol>
+<p>Todo:</p>
+<ul class="simple">
+<li>edit /etc/network/interfaces for public and private bridges</li>
+<li>script that spins up VMs also initializes the tap interfaces</li>
+</ul>
+</div>
+<div class="section" id="qemu-img-summary">
+<span id="qemu-img-summary"></span><h1>qemu-img summary<a class="headerlink" href="#qemu-img-summary" title="Permalink to this headline">¶</a></h1>
+<p>important options:</p>
+<ul class="simple">
+<li>-f : file format (qcow2, vdi, raw, etc...)</li>
+<li>-b : base image (if making a copy on write image)</li>
+</ul>
+<p>create a 20 Gigabyte disk image in qcow2 format:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">img</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">qcow2</span> <span class="n">filename</span><span class="o">.</span><span class="n">qcow2</span> <span class="mi">20</span><span class="n">G</span>
+</pre></div>
+</div>
+<p>in general:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">img</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="o">&lt;</span><span class="n">file</span><span class="o">-</span><span class="n">foramt</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">filename</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">size</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>create a qcow2 image with orig.qcow2 as a base (will be the same size):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">img</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">qcow2</span> <span class="o">-</span><span class="n">b</span> <span class="n">orig</span><span class="o">.</span><span class="n">qcow2</span> <span class="n">filename</span><span class="o">.</span><span class="n">qcow2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="qemu-system-x86-64">
+<span id="qemu-system-x86-64"></span><h1>qemu-system-x86_64<a class="headerlink" href="#qemu-system-x86-64" title="Permalink to this headline">¶</a></h1>
+<p>Important options:</p>
+<ul class="simple">
+<li>-hda <file> : use <file> as hard disk 0 image</li>
+</ul>
+<p>Example, to netboot a kvm instance. and redirect serial to stdio:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">x86_64</span> <span class="o">-</span><span class="n">enable</span><span class="o">-</span><span class="n">kvm</span> <span class="o">-</span><span class="n">m</span> <span class="mi">512</span> <span class="o">-</span><span class="n">net</span> <span class="n">nic</span><span class="p">,</span><span class="n">vlan</span><span class="o">=</span><span class="mi">0</span> <span class="o">-</span><span class="n">net</span> <span class="n">tap</span><span class="p">,</span><span class="n">vlan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ifname</span><span class="o">=</span><span class="n">tap0</span><span class="p">,</span><span class="n">script</span><span class="o">=</span><span class="n">no</span><span class="p">,</span><span class="n">downscript</span><span class="o">=</span><span class="n">no</span> <span class="o">-</span><span class="n">serial</span> <span class="n">stdio</span>
+</pre></div>
+</div>
+<p>Example, to boot from iso and start a vnc server on display 1:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">qemu</span><span class="o">-</span><span class="n">system</span><span class="o">-</span><span class="n">x86_64</span>\
+    <span class="o">-</span><span class="n">enable</span><span class="o">-</span><span class="n">kvm</span>\
+    <span class="o">-</span><span class="n">hda</span> <span class="n">single</span><span class="o">.</span><span class="n">qcow2</span>\
+    <span class="o">-</span><span class="n">m</span> <span class="mi">4096</span>\
+    <span class="o">-</span><span class="n">net</span> <span class="n">nic</span><span class="p">,</span><span class="n">vlan</span><span class="o">=</span><span class="mi">0</span>\
+    <span class="o">-</span><span class="n">net</span> <span class="n">tap</span><span class="p">,</span><span class="n">vlan</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ifname</span><span class="o">=</span><span class="n">tap0</span><span class="p">,</span><span class="n">script</span><span class="o">=</span><span class="n">no</span><span class="p">,</span><span class="n">downscript</span><span class="o">=</span><span class="n">no</span>\
+    <span class="o">-</span><span class="n">cdrom</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">iso</span><span class="o">&gt;</span>\
+    <span class="o">-</span><span class="n">display</span> <span class="n">vnc</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/KVM-How-To.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

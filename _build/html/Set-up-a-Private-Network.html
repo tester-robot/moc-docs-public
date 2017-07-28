@@ -1,0 +1,132 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Create a Network &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="create-a-network">
+<span id="create-a-network"></span><h1>Create a Network<a class="headerlink" href="#create-a-network" title="Permalink to this headline">¶</a></h1>
+<p>You can view your network topology by clicking Project, then click Network and choose Network Topology from the menu that appears.  You should see the public network which is accessible to all projects.</p>
+<!-- image out of date
+<img src=http://i.imgur.com/3pR0ysT.png>   
+-->
+[[tutorial_screenshots/kilo/network_topology_01-lg.png|Network Topology]]<p>Click the &quot;Create Network&quot; button on the right side of the screen, above the network topology map. Give your network a name, and leave the two checkboxes with the default settings.</p>
+<!-- image out of date
+<img src=http://i.imgur.com/GqESEUS.png> 
+--><p>[[tutorial_screenshots/mitaka/create_network.png|Create Network]]</p>
+<p>Next, click &quot;Subnet&quot; and set up your private network's subnet.  For your private networks, you should use IP addresses which fall within the ranges that are specifically reserved for private networks:</p>
+<p>10.0.0.0/8172.16.0.0/12192.168.0.0/16</p>
+<p>In the example below, we configure a network containing addresses 192.168.100.1 to 192.168.100.255.</p>
+<p>(Technically, your private network will still work if you choose any IP outside these ranges, but this causes problems with connecting to IPs in the outside world - so don't do it!)</p>
+<!-- image out of date
+<img src=http://i.imgur.com/92xk0IQ.png> 
+-->
+[[tutorial_screenshots/mitaka/create_network_subnet.png|Create Subnet]]<p>Next, click &quot;Subnet Details&quot;. Check the box next to Enable DHCP so that your VM instances will automatically be assigned an IP on the subnet.</p>
+<p>In the DNS Name Servers box, type '8.8.8.8' (you may recognize this as one of Google's public name servers).</p>
+<!-- image out of date
+<img src=http://i.imgur.com/Hz1ShP4.png> 
+--><p>[[tutorial_screenshots/mitaka/create_network_details.png|Subnet Details]]</p>
+<p>For now, leave the Allocation Pools and Host Routes boxes empty.  Click on Create.</p>
+<p>The Network Topology should now show your virtual private network next to the public network.</p>
+<!-- image out of date
+<img src=http://i.imgur.com/Rwaybcf.png> 
+--><p>[[tutorial_screenshots/kilo/network_topology_02.png|Network Topology with Private Network]]</p>
+<hr class="docutils" />
+<div class="section" id="next-create-a-router">
+<span id="next-create-a-router"></span><h2>Next:   [[Create a Router]]<a class="headerlink" href="#next-create-a-router" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-dashboard-overview">
+<span id="previous-dashboard-overview"></span><h3>Previous:   [[Dashboard Overview]]<a class="headerlink" href="#previous-dashboard-overview" title="Permalink to this headline">¶</a></h3>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Set-up-a-Private-Network.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

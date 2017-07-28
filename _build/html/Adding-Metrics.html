@@ -1,0 +1,129 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<p>Reference: <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/cluster_metrics.html#metrics-namespace">https://docs.openshift.com/container-platform/3.5/install_config/cluster_metrics.html#metrics-namespace</a></p>
+<ol>
+<li><p class="first">Run the ansible script for either with PV or without PV:</p>
+<p>With persistent volume:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ansible</span><span class="o">-</span><span class="n">playbook</span> <span class="o">&lt;</span><span class="n">OPENSHIFT_ANSIBLE_DIR</span><span class="o">&gt;/</span><span class="n">common</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">cluster</span><span class="o">/</span><span class="n">openshift_metrics</span><span class="o">.</span><span class="n">yml</span> \
+    <span class="o">-</span><span class="n">e</span> <span class="n">openshift_metrics_install_metrics</span><span class="o">=</span><span class="kc">True</span> \
+    <span class="o">-</span><span class="n">e</span> <span class="n">openshift_metrics_hawkular_hostname</span><span class="o">=</span><span class="n">hawkular</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span> \
+    <span class="o">-</span><span class="n">e</span> <span class="n">openshift_metrics_cassandra_storage_type</span><span class="o">=</span><span class="n">pv</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Without persistent volume:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ansible</span><span class="o">-</span><span class="n">playbook</span> <span class="o">&lt;</span><span class="n">OPENSHIFT_ANSIBLE_DIR</span><span class="o">&gt;/</span><span class="n">common</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">cluster</span><span class="o">/</span><span class="n">openshift_metrics</span><span class="o">.</span><span class="n">yml</span> \
+    <span class="o">-</span><span class="n">e</span> <span class="n">openshift_metrics_install_metrics</span><span class="o">=</span><span class="kc">True</span> \
+    <span class="o">-</span><span class="n">e</span> <span class="n">openshift_metrics_hawkular_hostname</span><span class="o">=</span><span class="n">hawkular</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Not sure if this is needed, to add the hawkular OpenShift Agent - this gets deployed to the default project
+a) Get the 2 configuration files</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openshift</span><span class="o">/</span><span class="n">origin</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">blob</span><span class="o">/</span><span class="n">enterprise</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">-</span><span class="n">configmap</span><span class="o">.</span><span class="n">yaml</span>
+ <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openshift</span><span class="o">/</span><span class="n">origin</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">blob</span><span class="o">/</span><span class="n">enterprise</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>b) To deploy the agent:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">-</span><span class="n">configmap</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">n</span> <span class="n">default</span>
+ <span class="n">oc</span> <span class="n">process</span> <span class="o">-</span><span class="n">f</span> <span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">.</span><span class="n">yaml</span> <span class="o">|</span> <span class="n">oc</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">default</span> <span class="o">-</span><span class="n">f</span> <span class="o">-</span>
+ <span class="n">oc</span> <span class="n">adm</span> <span class="n">policy</span> <span class="n">add</span><span class="o">-</span><span class="n">cluster</span><span class="o">-</span><span class="n">role</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">user</span> <span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span> <span class="n">system</span><span class="p">:</span><span class="n">serviceaccount</span><span class="p">:</span><span class="n">default</span><span class="p">:</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span>
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Adding-Metrics.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

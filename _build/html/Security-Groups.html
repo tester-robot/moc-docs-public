@@ -1,0 +1,143 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Create a new Security Group &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Before you launch a VM, you must configure some security settings so that you will be able to log in via ssh.</p>
+<p>Navigate to Project -&gt; Compute -&gt; Access and Security
+Click on the Security Groups tab.You should see a ‘default’ security group.</p>
+<p><img src=http://i.imgur.com/difGeQ6.png></p>
+<p>Security groups are profiles that control the firewall settings which allow or block access to instances that are members of the group.</p>
+<p>The default security group allows traffic only between members of the security group, so by default you can always connect between VMs in this group.  However, it blocks all traffic from outside, including incoming SSH connections.  In order to access instances via a public IP, an additional security group is needed.</p>
+<p>Security groups are very highly configurable, so you can create different security groups for different types of VMs used in your project.  For example, for a VM that hosts a web page, you need a security group which allows access to ports 80 and 443.  You can also limit access based on where the traffic originates, using either IP addresses or security groups to define the allowed sources.</p>
+<div class="section" id="create-a-new-security-group">
+<span id="create-a-new-security-group"></span><h1>Create a new Security Group<a class="headerlink" href="#create-a-new-security-group" title="Permalink to this headline">¶</a></h1>
+<p>Click on &quot;Create Security Group.&quot;  Give your new group a name, and a brief description.  In the example, we will enable SSH from anywhere so we can access the VM via a public IP.</p>
+<p>[[tutorial_screenshots/kilo/create_security_group.png]]</p>
+<p>Your new group now appears in the list.  Click the &quot;Manage Rules&quot; button in the &quot;Actions&quot; column next to your new security group.</p>
+<p>[[tutorial_screenshots/kilo/access_security_newgroup.png]]</p>
+<p>You will see some existing rules:</p>
+<p>[[tutorial_screenshots/kilo/security_rules_01.png]]</p>
+<!--
+<img src=http://i.imgur.com/JzHIUbD.png>      
+--><p>Let's create the new rule to allow SSH. Click on Add Rule.</p>
+<p>You will see there are a lot of options you can configure on this screen.  There is a built-in SSH option to make things simple.  Choose 'SSH' from the 'Rule' drop down menu and click &quot;Add.&quot;</p>
+<p>[[tutorial_screenshots/kilo/add_rule.png]]</p>
+<p>The new rule now appears in the list.</p>
+<p>[[tutorial_screenshots/kilo/security_rules_02.png]]</p>
+<div class="section" id="allowing-ping">
+<span id="allowing-ping"></span><h2>Allowing Ping<a class="headerlink" href="#allowing-ping" title="Permalink to this headline">¶</a></h2>
+<p>The default configuration blocks ping responses, so you will need to add an additional group and/or rule if you want your public IPs to respond to ping requests.</p>
+<p>Ping is ICMP traffic, so the easiest way to allow it is to add a new rule and choose &quot;ALL ICMP&quot; from the dropdown.</p>
+<p>[[tutorial_screenshots/mitaka/security_add_rule_ping.png]]</p>
+<!--
+REMOVED THIS INSTRUCTION DUE TO KNOWN BUG
+https://bugs.launchpad.net/horizon/+bug/1511748
+which is not yet fixed in RHEL OSP Mitaka
+If needed, you can also enable just ping, while still disallowing other ICMP traffic.  Choose the Type "Custom ICMP", and set Type=0, Code=8.
+--><p>More on different types of ICMP codes can be found at <a class="reference external" href="http://www.nthelp.com/icmp.html">this link</a>.  Note that due to a known bug (see https://bugs.launchpad.net/horizon/+bug/1511748) setting a specific ICMP type may give an error message.</p>
+<p>Make sure to add VMs with public IPs you want to ping to the security group containing this rule.</p>
+<!-- 
+#### Add a Rule to allow incoming ssh connections(22/tcp) <p>Choose the Port Number as 22</p>
+<p><img src=http://i.imgur.com/WnRhAy9.png>--&gt;</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="next-create-a-key-pair">
+<span id="next-create-a-key-pair"></span><h1>Next:  [[Create a Key Pair]]<a class="headerlink" href="#next-create-a-key-pair" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="previous-create-a-router">
+<span id="previous-create-a-router"></span><h2>Previous:  [[Create a Router]]<a class="headerlink" href="#previous-create-a-router" title="Permalink to this headline">¶</a></h2>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Security-Groups.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

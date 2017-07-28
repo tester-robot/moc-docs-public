@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Google Chrome (Ubuntu) &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <!--## SetUp Proxy Server on your browser
+### Firefox <p>First, pick a local port number to act as your socks proxy port. We'll call it <code class="docutils literal"><span class="pre">$SOCKS_PORT_NUMBER</span></code></p>
+<p>You can refer to this online link <a class="reference external" href="http://www.wikihow.com/Enter-Proxy-Settings-in-Firefox">setup proxy on firefox</a> or go thru the following instructions:</p>
+<ul class="simple">
+<li>Go to Firefox -&gt; Preferences -&gt; Advanced -&gt; Network</li>
+<li>Click on Settings -&gt; Enable Manual Proxy Config</li>
+<li>SOCKS HOST: “localhost” Port $SOCKS_PORT_NUMBER  //example 5000 (ensure port number is greater than 1024)</li>
+</ul>
+<p>Check this screenshot.</p>
+<p><img src=http://i.imgur.com/HTd6jPfh.png></p>
+<div class="section" id="google-chrome-ubuntu">
+<span id="google-chrome-ubuntu"></span><h1>Google Chrome (Ubuntu)<a class="headerlink" href="#google-chrome-ubuntu" title="Permalink to this headline">¶</a></h1>
+<p>We'll call a local port number as the socks proxy port. We'll call that port number as <code class="docutils literal"><span class="pre">$SOCKS_PORT_NUMBER</span></code></p>
+<ul class="simple">
+<li>Open a Google Chrome browser. Maneuver to the top right to Customize and Control Google Chrome (Preferences).</li>
+<li>Underneath the dropdown, select Settings. A new tab with the Settings will open.</li>
+<li>Go to the bottom of Settings and click on Show advanced settings...</li>
+<li>Find the header named Network and select Change proxy settings... A window with Network settings pops up.</li>
+<li>Select Network tab, which is on the left side. Select Manual method.</li>
+<li>Next to Socks Host, input: localhost</li>
+<li>Input the port number before the - and + buttons: $SOCKS_PORT_NUMBER //example 5000 (ensure port number is greater than 1024)</li>
+<li>Finally, hit the button with Apply system wide.</li>
+</ul>
+<p><img src=http://i.imgur.com/7XALCtM.png></p>
+<p>Before visiting the OpenStack Dashboard, you may have to restart the browser.</p>
+</div>
+<div class="section" id="ssh-port-forwarding-to-get-access-to-the-ssh-gateway">
+<span id="ssh-port-forwarding-to-get-access-to-the-ssh-gateway"></span><h1>SSH Port Forwarding to get access to the SSH-Gateway<a class="headerlink" href="#ssh-port-forwarding-to-get-access-to-the-ssh-gateway" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span>ssh -D $SOCKS_PORT_NUMBER $BU_USERNAME@140.247.152.200 -N  #the ssh user name would be one from Checklist point 2.
+</pre></div>
+</div>
+<p><strong>Sample Example:</strong>ssh -D 5000 abhi&#64;140.247.152.200 -N</p>
+<p>The first time you ssh in, you should receive this message (the keys should match):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">authenticity</span> <span class="n">of</span> <span class="n">host</span> <span class="s1">&#39;140.247.152.200 (140.247.152.200)&#39;</span> <span class="n">can</span><span class="s1">&#39;t be established.</span>
+<span class="n">ECDSA</span> <span class="n">key</span> <span class="n">fingerprint</span> <span class="ow">is</span> <span class="mi">58</span><span class="p">:</span><span class="mi">5</span><span class="n">d</span><span class="p">:</span><span class="mi">2</span><span class="n">f</span><span class="p">:</span><span class="n">a4</span><span class="p">:</span><span class="mi">44</span><span class="p">:</span><span class="n">d6</span><span class="p">:</span><span class="mi">71</span><span class="p">:</span><span class="mi">0</span><span class="n">c</span><span class="p">:</span><span class="mi">5</span><span class="n">a</span><span class="p">:</span><span class="mi">85</span><span class="p">:</span><span class="n">ac</span><span class="p">:</span><span class="mi">96</span><span class="p">:</span><span class="mi">14</span><span class="p">:</span><span class="mi">1</span><span class="n">c</span><span class="p">:</span><span class="n">e4</span><span class="p">:</span><span class="mf">71.</span>
+</pre></div>
+</div>
+<p>--&gt;</p>
+</div>
+<div class="section" id="navigate-to-the-the-openstack-dashboard">
+<span id="navigate-to-the-the-openstack-dashboard"></span><h1>Navigate to the the OpenStack Dashboard<a class="headerlink" href="#navigate-to-the-the-openstack-dashboard" title="Permalink to this headline">¶</a></h1>
+<!--Point your browser(with proxy server enabled) to http://140.247.152.207-->
+Point your browser to https://controller-0.kaizen.massopencloud.org   <p>You should see the following screen:</p>
+<p>[[tutorial_screenshots/kilo/redhat_login_page_small.png|Red Hat Openstack Login Page]]</p>
+<!--img src=http://ataturk.github.io/tutorial/login.png-->
+<!--img src=http://i.imgur.com/6MsO98m.png--><!--If you can see OpenStack dashboard Awesome !--></div>
+<div class="section" id="log-in-to-the-openstack-dashboard">
+<span id="log-in-to-the-openstack-dashboard"></span><h1>Log in to the OpenStack Dashboard<a class="headerlink" href="#log-in-to-the-openstack-dashboard" title="Permalink to this headline">¶</a></h1>
+<p>Use your openstack user credentials to login.  Your username will be your email address.  Upon signing up you received a temporary password.  Use the temporary password the first time you log in, then immediately change it (otherwise it will expire and you will not be able to log in).</p>
+<p>Once you login you should see an overview of the resources like instances(vms), CPU, RAM etc. Take some time to
+just browse around.</p>
+<p>[[tutorial_screenshots/liberty/compute_overview.png|Project Overview]]</p>
+<!--img src=http://i.imgur.com/ZTK0J5i.png-->  </div>
+<div class="section" id="change-your-password">
+<span id="change-your-password"></span><h1>Change Your Password<a class="headerlink" href="#change-your-password" title="Permalink to this headline">¶</a></h1>
+<p>The first time you log in, you must change your temporary password to one that only you know.  Find your username in the top right corner of the dashboard, and click on it.  Choose &quot;Change Password&quot; from the menu that opens.  Enter your temporary password under &quot;Current Password&quot;, and your new password in the other two boxes.</p>
+<p>[[tutorial_screenshots/kilo/change_password.png|Change Password Menu]]</p>
+<hr class="docutils" />
+<div class="section" id="next-dashboard-overview">
+<span id="next-dashboard-overview"></span><h2>Next:  [[Dashboard Overview]]<a class="headerlink" href="#next-dashboard-overview" title="Permalink to this headline">¶</a></h2>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Access-the-OpenStack-dashboard.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

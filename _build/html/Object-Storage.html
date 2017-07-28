@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Intro to Object Storage &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="intro-to-object-storage">
+<span id="intro-to-object-storage"></span><h1>Intro to Object Storage<a class="headerlink" href="#intro-to-object-storage" title="Permalink to this headline">¶</a></h1>
+<p>The Object Store is an interface where users can upload data directly to our Ceph cluster for storage.  Please note that while Ceph is a reliable, replicated storage solution, we do not currently maintain any offsite backup of user data.  Please do not keep your only copy of critical data in our Object Store.</p>
+<p>You can manage objects in the Object Store via the web interface, or by using the API to connect to the Rados Gateway service, which provides a Swift or S3 interface.</p>
+</div>
+<div class="section" id="web-interface">
+<span id="web-interface"></span><h1>Web Interface<a class="headerlink" href="#web-interface" title="Permalink to this headline">¶</a></h1>
+<p>To get started, navigate to Project -&gt; Object Store -&gt; Containers.</p>
+<p>[[tutorial_screenshots/liberty/object_store.png|Object Store]]</p>
+<div class="section" id="create-a-container">
+<span id="create-a-container"></span><h2>Create a Container<a class="headerlink" href="#create-a-container" title="Permalink to this headline">¶</a></h2>
+<p>In order to store objects, you need at least one &quot;Container&quot; to put them in.  Containers are essentially top-level directories.  Other services use the terminology &quot;buckets&quot;.</p>
+<p>Click Create Container.  Give your container a name.  The name needs to be unique, not just within your project but across all of our OpenStack installation.  If you get an error message after trying to create the container, try giving it a more unique name.</p>
+<p>For now, leave the Container Access set to Private.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_create_container.png|Create Container]]</p>
+<p>Your container now appears in the containers list.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_container_list.png|Container List]]</p>
+</div>
+<div class="section" id="upload-a-file">
+<span id="upload-a-file"></span><h2>Upload a File<a class="headerlink" href="#upload-a-file" title="Permalink to this headline">¶</a></h2>
+<p>Click on the name of your container, and click the Upload File icon.  Click Browse and select a file from your local machine to upload.  It can take a while to upload very large files, so if you're just testing it out you may want to use a small text file or similar.</p>
+<p>By default the File Name will be the same as the original file, but you can change it to another name. Click &quot;Upload File&quot;.  Your file will appear inside the container.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_upload_file.png]]</p>
+</div>
+<div class="section" id="using-folders">
+<span id="using-folders"></span><h2>Using Folders<a class="headerlink" href="#using-folders" title="Permalink to this headline">¶</a></h2>
+<p>Files stored by definition do not organize objects into folders, but you can use folders to keep your data organized.  On the backend, the folder name is actually just prefixed to the object name, but from the web interface (and most other clients) it works just like a folder.</p>
+<p>To add a folder, click on the &quot;+ folder&quot; icon.</p>
+</div>
+<div class="section" id="make-a-container-public">
+<span id="make-a-container-public"></span><h2>Make a container public<a class="headerlink" href="#make-a-container-public" title="Permalink to this headline">¶</a></h2>
+<p>Making a container public allows you to send your collaborators a URL that gives access to the container's contents. Click on your container's name, then check the &quot;Public Access&quot; box. Note that &quot;Public Access&quot; changes from &quot;disabled&quot; to &quot;link&quot;.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_make_public.png]]</p>
+<p>Click &quot;link&quot; to see a list of object in the container. This is the URL of your container.</p>
+<p>Note that anyone who obtains the URL will be able to access the container, so this is not recommended as a way to share sensitive data with collaborators.  In addition, everything inside a public container is public, so we recommend creating a separate container specifically for files that should be made public.</p>
+<p>In this example, we have added a folder and a second object, to show how the directory structure appears in the container.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_public_url.png|Container Public URL]]</p>
+<p>To download the file <code class="docutils literal"><span class="pre">test.txt</span></code> we would use the following url:
+<code class="docutils literal"><span class="pre">http://rdgw.kaizen.massopencloud.org/swift/v1/test-container-unique/test.txt</span></code></p>
+<p>Or you can just click on &quot;Download&quot; next to the file's name.</p>
+<p>[[tutorial_screenshots/mitaka/object_store_download_file.png]]</p>
+<p>You can also interact with public objects using a utility such as curl:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># curl http://rdgw.kaizen.massopencloud.org/swift/v1/tutorial_container_unique</span>
+<span class="n">test_file</span>
+<span class="n">tutorial_pseudo</span><span class="o">-</span><span class="n">folder</span><span class="o">/</span>
+<span class="n">tutorial_pseudo</span><span class="o">-</span><span class="n">folder</span><span class="o">/</span><span class="n">test_file2</span>
+</pre></div>
+</div>
+<p>To download a file:
+# curl -o local_file.txt  http://rdgw.kaizen.massopencloud.org/swift/v1/tutorial_container_unique/test_file</p>
+</div>
+<div class="section" id="make-a-container-private">
+<span id="make-a-container-private"></span><h2>Make a container private<a class="headerlink" href="#make-a-container-private" title="Permalink to this headline">¶</a></h2>
+<p>You can make a public container private by clicking the dropdown next to the container and clicking Make Private.  This will deactivate the public URL of the container.</p>
+</div>
+</div>
+<div class="section" id="api-access">
+<span id="api-access"></span><h1>API Access<a class="headerlink" href="#api-access" title="Permalink to this headline">¶</a></h1>
+<p>You can also use a Swift or Amazon S3 client to interact with the object store.</p>
+<div class="section" id="swift-interface">
+<span id="swift-interface"></span><h2>Swift interface<a class="headerlink" href="#swift-interface" title="Permalink to this headline">¶</a></h2>
+<p>There are a number of Swift clients available.  In this tutorial we will use python-swiftclient.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># yum install python-swiftclient</span>
+</pre></div>
+</div>
+<p>If when trying to use the client, you get an error about ssl_match_hostname, you will need to manually install the relevant python backport:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># yum install python-backports.ssl_match_hostname</span>
+</pre></div>
+</div>
+<p>Swift authenticates using a user, tenant, and key, which map to your OpenStack username, project, and password.</p>
+<p>Set these environmental variables using your openstackrc file, and type the command below to get a lits of your containers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ swift -V 2 -A $OS_AUTH_URL -U $OS_TENANT_NAME:$OS_USERNAME -K $OS_PASSWORD list
+tutorial_container_unique
+</pre></div>
+</div>
+<p>To upload a file to tutorial_container_unique</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ swift -V 2 -A $OS_AUTH_URL -U $OS_TENANT_NAME:$OS_USERNAME -K $OS_PASSWORD upload tutorial-container_unique /path/to/file
+tutorial_container_unique
+</pre></div>
+</div>
+<p>Type &quot;man swift&quot; to learn more about using the swift commands.  The client has a --debug flag, which can be useful if you are having issues.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="next-api-access">
+<span id="next-api-access"></span><h2>Next: [[API Access]]<a class="headerlink" href="#next-api-access" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-volumes">
+<span id="previous-volumes"></span><h3>Previous:  [[Volumes]]<a class="headerlink" href="#previous-volumes" title="Permalink to this headline">¶</a></h3>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Object-Storage.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

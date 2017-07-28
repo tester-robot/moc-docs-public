@@ -1,0 +1,214 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Add a Key Pair &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p><strong>NOTE:</strong> If you will be using PuTTY on Windows, please read <a class="reference external" href="#ssh-keys-with-putty-on-windows">this first</a>.</p>
+<div class="section" id="add-a-key-pair">
+<span id="add-a-key-pair"></span><h1>Add a Key Pair<a class="headerlink" href="#add-a-key-pair" title="Permalink to this headline">¶</a></h1>
+<p>For security, the VM images have password authentication disabled by default, so you will need to use an SSH key pair to log in.</p>
+<p>Click Access and Security, then click the Key Pairs tab which appears below it.</p>
+<p>[[tutorial_screenshots/kilo/key_pairs_01.png]]</p>
+</div>
+<div class="section" id="import-a-key-pair">
+<span id="import-a-key-pair"></span><h1>Import a Key Pair<a class="headerlink" href="#import-a-key-pair" title="Permalink to this headline">¶</a></h1>
+<p>Prerequisite: You need ssh installed in your system</p>
+<p>You can create a key pair on your local machine, then upload the public key to the cloud.  This is the recommended method.</p>
+<p>Open a terminal and type the following commands (in the example, we have named the key cloud.key, but you can name it anything you want):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ cd ~/.ssh
+ $ ssh-keygen -t rsa -f ~/.ssh/cloud.key -C &quot;label_your_key&quot; 
+</pre></div>
+</div>
+<p>Example:</p>
+<p>[[tutorial_screenshots/kilo/generate_key.png]]</p>
+<p>You will be prompted to create a passphrase for the key.<strong>IMPORTANT:</strong> Do not forget the passphrase! If you do, you will be unable to use your key.</p>
+<p>This process creates two files in your .ssh folder:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">cloud</span><span class="o">.</span><span class="n">key</span>      <span class="c1"># private key - don’t share this with anyone, and never upload it anywhere ever</span>
+ <span class="n">cloud</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pub</span>  <span class="c1"># this is your public key    </span>
+</pre></div>
+</div>
+<p><strong>Pro Tip:</strong> The <code class="docutils literal"><span class="pre">-C</span> <span class="pre">&quot;label&quot;</span></code> field is not required, but it is useful to quickly identify different public keys later.  You could use your email address as the label, or a user&#64;host tag that identifies the computer the key is for.  For example, if Laura has both a laptop and a desktop computer that she will, she might use -C &quot;Laura&#64;laptop&quot; to label the key she generates on the laptop, and -C &quot;Laura&#64;desktop&quot; for the desktop.</p>
+<p>On your terminal:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ pbcopy &lt; ~/.ssh/cloud.key.pub  #copies the contents of public key to clipboard 
+</pre></div>
+</div>
+<p>Go back to the Openstack Dashboard, where you should still be on the Key Pairs tab
+(If not, find it under Project -&gt; Compute -&gt; Access and Security --&gt; Key Pairs)</p>
+<p>Choose &quot;Import Key Pair&quot;</p>
+<p>Paste the public key that you just copied in the &quot;Public Key&quot; text box.Give the key a name in the &quot;Key Pair Name&quot; Box.</p>
+<p>[[tutorial_screenshots/kilo/import_key.png]]</p>
+<p>Click &quot;Import Key Pair&quot;.  You will see your key pair appear in the list.</p>
+<p>[[tutorial_screenshots/kilo/key_pairs_02.png]]</p>
+<p>You can now skip ahead to <a class="reference external" href="#agent">Adding the key to an ssh-agent</a></p>
+</div>
+<div class="section" id="create-a-key-pair">
+<span id="create-a-key-pair"></span><h1>Create a Key Pair<a class="headerlink" href="#create-a-key-pair" title="Permalink to this headline">¶</a></h1>
+<p>If you are having trouble creating a key pair with the instructions above, the Openstack dashboard can make one for you.</p>
+<p>Click &quot;Create a Key Pair&quot;, and enter a name for the key pair.</p>
+<p>[[tutorial_screenshots/kilo/create_key.png]]</p>
+<p>You will be prompted to download a .pem file containing your private key.  (In the example, we have named the key 'cloud_key.pem', but you can name it anything.)  Save this file to your hard drive, for example in your Downloads folder.</p>
+<p>[[tutorial_screenshots/kilo/save_key.png]]</p>
+<p>Store this key inside the .ssh folder on your local machine/laptop, using the following steps:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ cd ~/Downloads          # Navigate to the folder where you saved the .pem file
+ $ mv cloud.pem ~/.ssh/    # This command will copy the key you downloaded to your .ssh folder.  
+ $ cd ~/.ssh               # Navigate to your .ssh folder
+ $ chmod 400 cloud.pem     # Change the permissions of the file
+</pre></div>
+</div>
+<p>To see your public key, navigate to
+Project -&gt; Compute -&gt; Access and Security -&gt; Key Pairs</p>
+<p>You should see your key in the list.</p>
+<p>[[tutorial_screenshots/kilo/key_pairs_03.png]]</p>
+<p>Click on the key, and you will see a screen of information that includes your public key:</p>
+<p>[[tutorial_screenshots/kilo/view_public_key.png]]</p>
+<p>The public key is the part of the key you distribute to VMs and remote servers.  You may find it convenient to paste it into a file inside your .ssh folder, so you don't always need to log into the website to see it.  Call the file something like <code class="docutils literal"><span class="pre">cloud_key.pub</span></code> to distinguish it from your private key.</p>
+<p><strong>Important: Never share your private key with anyone, or upload it to a server!</strong></p>
+</div>
+<div class="section" id="a-name-agent-a-adding-the-key-to-an-ssh-agent">
+<span id="a-name-agent-a-adding-the-key-to-an-ssh-agent"></span><h1><a name="agent"></a>Adding the key to an ssh-agent<a class="headerlink" href="#a-name-agent-a-adding-the-key-to-an-ssh-agent" title="Permalink to this headline">¶</a></h1>
+<p>If you have many VMs, you will most likely be using one or two VMs with public IPs as a gateway to others which are not reachable from the internet.  In order to be able to use your key for multiple SSH hops, do NOT copy your private key to the gateway VM!  The correct method to use Agent Forwarding, which adds the key to an ssh-agent on your local machine and 'forwards' it over the SSH connection.</p>
+<p>First, add the key to your ssh agent:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ cd ~/.ssh
+ $ ssh-add cloud.pem
+</pre></div>
+</div>
+<p>Check that it is added with the command</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ ssh-add -l
+ 2048 SHA256:D0DLuODzs15j2OaZnA8I52aEeY3exRT2PCsUyAXgI24 /Users/kamfonik/.ssh/cloud.pem (RSA)
+</pre></div>
+</div>
+<p>Depending on your system, you might have to repeat these steps after you reboot or log out of your computer.  You can always check if your ssh key is added by running the <code class="docutils literal"><span class="pre">ssh-add</span> <span class="pre">-l</span></code> command.  A key with the default name id_rsa will be added by default at login, although you will still need to unlock it with your passphrase the first time you use it.</p>
+<p>Once the key is added, you will be able to forward it over an SSH connection, like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ ssh -A -i cloud.key &lt;username&gt;@&lt;remote-host-IP&gt;
+</pre></div>
+</div>
+<p>Connecting via SSH is discussed in more detail later in the tutorial ([[SSH to Cloud VM]]); for now, just proceed to the next step below.</p>
+</div>
+<div class="section" id="ssh-keys-with-putty-on-windows">
+<span id="ssh-keys-with-putty-on-windows"></span><h1>SSH keys with PuTTY on Windows<a class="headerlink" href="#ssh-keys-with-putty-on-windows" title="Permalink to this headline">¶</a></h1>
+<p>PuTTY requires SSH keys to be in its own <code class="docutils literal"><span class="pre">ppk</span></code> format.  To convert between OpenSSH keys used by OpenStack and PuTTY's format, you need a utility called PuTTYgen.  If it was not installed when you originally installed PuTTY, you can get it here: <a class="reference external" href="#http://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html">Download PuTTY</a>.</p>
+<p>You have 2 options for generating keys that will work with PuTTY:</p>
+<ol class="simple">
+<li>Generate an OpenSSH key with ssh-keygen or from the Horizon GUI using the instructions above, then use PuTTYgen to convert the private key to .ppk</li>
+</ol>
+<p>or</p>
+<ol class="simple">
+<li>Generate a .ppk key with PuTTYgen, and import the provided OpenSSH public key to OpenStack using the 'Import' instructions above.</li>
+</ol>
+<p>There is a detailed walkthrough of how to use PuTTYgen here: <a class="reference external" href="#https://devops.profitbricks.com/tutorials/use-ssh-keys-with-putty-on-windows/">Use SSH Keys with PuTTY on Windows</a></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="next-launch-a-vm">
+<span id="next-launch-a-vm"></span><h1>Next:  [[Launch a VM]]<a class="headerlink" href="#next-launch-a-vm" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="previous-security-groups">
+<span id="previous-security-groups"></span><h2>Previous:  [[Security Groups]]<a class="headerlink" href="#previous-security-groups" title="Permalink to this headline">¶</a></h2>
+<p>[[Openstack Tutorial Index]]</p>
+<!--
+#### Adding ssh key to ssh-agent<p>The following commands will be executed on your local machine/laptop preferably having
+Linux flavor.
+On your terminal start ssh-agent:$ eval &quot;$(ssh-agent  -s)&quot;Agent pid 5966$ ssh-add ~/.ssh/&quot;new-key&quot;  #the private key</p>
+</div>
+</div>
+<div class="section" id="allocate-floating-ip-s-to-project">
+<span id="allocate-floating-ip-s-to-project"></span><h1>Allocate Floating IP's to Project<a class="headerlink" href="#allocate-floating-ip-s-to-project" title="Permalink to this headline">¶</a></h1>
+<p>Floating IPs allow virtual machine instances to be accessed from outside of the openstack network. Floating IPs can be allocated to a project before or after launching an instance.</p>
+<p>Your project is assigned one floating IP. You need to allocate the IP to your Project.</p>
+<p>Goto Project -&gt; Access and Security -&gt; Floating IPs tab</p>
+<p><img src=http://i.imgur.com/VvaAa0l.png></p>
+<p>Click on &quot;Allocate IP to Project&quot; button.</p>
+<p><img src=http://i.imgur.com/yapQW8B.png></p>
+<p>Click on Allocate IP below the Project Quotas.</p>
+<p>You can see the new Floating IP assigned to your Project under Floating IP's tab.</p>
+<p><img src=http://i.imgur.com/oRs9O7o.png>--&gt;</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Create-a-Key-Pair.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

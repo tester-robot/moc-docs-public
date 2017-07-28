@@ -1,0 +1,147 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/Testing-OpenShift">https://github.com/CCI-MOC/moc-public/wiki/Testing-OpenShift</a></p>
+<p>ref: <a class="reference external" href="https://github.com/openshift/svt/tree/master/conformance">https://github.com/openshift/svt/tree/master/conformance</a></p>
+<p>To install the Conformance tests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>1) clone the repository
+
+    git clone https://github.com/openshift/svt.git
+
+2) install go
+    download latest https://golang.org/dl/
+
+        wget https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz
+        tar xzvf go1.6.3.linux-amd64.tar.gz
+
+    system wide install
+
+        sudo mv go /usr/local/
+
+    add system wide path
+
+        sudo vi /etc/profile
+
+    add this to bottom
+
+        export PATH=$PATH:/usr/local/go/bin
+        export GOPATH=/usr/local/go/dev
+        export PATH=$PATH:$GOPATH/bin
+
+    reload
+
+        source /etc/profile
+
+    test go
+
+        go version
+
+3) install ginkgo
+
+     go get github.com/onsi/ginkgo/ginkgo
+
+4) install atomic-openshift-tests
+
+    atomic-openshift-excluder unexclude
+    yum -y install atomic-openshift-tests
+    atomic-openshift-excluder exclude
+
+5) run the tests
+
+    cd ./svt/conformance
+    ./svt_conformance
+</pre></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Conformance-Test-Setup.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

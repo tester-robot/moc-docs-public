@@ -1,0 +1,325 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>virtual machine setup &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Here we describe how the default vlan head nodes are configured</p>
+<div class="section" id="virtual-machine-setup">
+<span id="virtual-machine-setup"></span><h1>virtual machine setup<a class="headerlink" href="#virtual-machine-setup" title="Permalink to this headline">¶</a></h1>
+<p>The Vm is given 2 nics, one attached to our public network (eth1), and
+one attached to the vlan for which it is responsible (eth0).</p>
+<p>We also add a filesystem device, mode should be 'mapped', source should be
+<code class="docutils literal"><span class="pre">/var/lib/headnode-config/${vlan_number}</span></code>, we're using <code class="docutils literal"><span class="pre">/etc/moc</span></code> as a target
+(note that this is just a tag; it doesn't place any constraints on where the vm
+actually mounts the filesystem), and we make the filesystem readonly</p>
+<p>Note that the directory in question <em>must</em> exist, or the vm will not start,
+giving an error message along the lines of 'Connection reset by peer'.</p>
+<p>Also, (on ubuntu) the apparmor profile for libvirt needs to be adjusted to provide read
+access to this directory. We did this by simply adding:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">headnode</span><span class="o">-</span><span class="n">config</span><span class="o">/**</span> <span class="n">r</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>To the end of <code class="docutils literal"><span class="pre">/etc/apparmor.d/abstractions/libvirt-qemu</span></code>.</p>
+</div>
+<div class="section" id="os">
+<span id="os"></span><h1>OS<a class="headerlink" href="#os" title="Permalink to this headline">¶</a></h1>
+<p>We use ubuntu 12.04. In addition to the base install, we need to add the
+following packages:</p>
+<ul class="simple">
+<li>isc-dhcp-server</li>
+<li>tftpd-hpa</li>
+<li>python-pkg-resources</li>
+<li>python-requests</li>
+<li>syslinux-common</li>
+<li>git</li>
+<li>fcgiwrap</li>
+</ul>
+<p>We only want the dhcp server listening on eth0, so modify
+<code class="docutils literal"><span class="pre">/etc/default/isc-dhcp-server</span></code> to contain:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">INTERFACES</span><span class="o">=</span><span class="s2">&quot;eth0&quot;</span>
+</pre></div>
+</div>
+<p>copy these files from <code class="docutils literal"><span class="pre">/usr/lib/syslinux</span></code> to <code class="docutils literal"><span class="pre">/var/lib/tftpboot</span></code>:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">pxelinux.0</span></code></li>
+<li><code class="docutils literal"><span class="pre">menu.c32</span></code></li>
+<li><code class="docutils literal"><span class="pre">memdisk</span></code></li>
+<li><code class="docutils literal"><span class="pre">mboot.c32</span></code></li>
+<li><code class="docutils literal"><span class="pre">chain.c32</span></code></li>
+</ul>
+<p>/etc/dhcp/dhcpd.conf looks like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">36000</span><span class="p">;</span>
+<span class="nb">max</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">36000</span><span class="p">;</span>
+<span class="n">allow</span> <span class="n">booting</span><span class="p">;</span>
+<span class="n">allow</span> <span class="n">bootp</span><span class="p">;</span>
+<span class="n">authoritative</span><span class="p">;</span>
+
+<span class="n">subnet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">10.1</span> <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span> <span class="p">{</span>
+    <span class="nb">range</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">10.0</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">10.127</span><span class="p">;</span>
+    <span class="n">option</span> <span class="n">broadcast</span><span class="o">-</span><span class="n">address</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">10.255</span><span class="p">;</span>
+    <span class="n">filename</span> <span class="s2">&quot;/pxelinux.0&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We need to make sure our network is set up correctly. <code class="docutils literal"><span class="pre">/etc/network/interfaces</span></code> might look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># The loopback network interface</span>
+<span class="n">auto</span> <span class="n">lo</span>
+<span class="n">iface</span> <span class="n">lo</span> <span class="n">inet</span> <span class="n">loopback</span>
+
+<span class="c1"># Our ip address on the private network, shared with the workstations.</span>
+<span class="n">auto</span> <span class="n">eth0</span>
+<span class="n">iface</span> <span class="n">eth0</span> <span class="n">inet</span> <span class="n">static</span>
+    <span class="n">address</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">10.254</span>
+    <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span>
+
+<span class="c1"># This affords us an ip address on the workstations&#39; management subnet.</span>
+<span class="c1"># We need this for e.g. power cycling.</span>
+<span class="n">auto</span> <span class="n">eth0</span><span class="p">:</span><span class="mi">1</span>
+<span class="n">iface</span> <span class="n">eth0</span><span class="p">:</span><span class="mi">1</span> <span class="n">inet</span> <span class="n">static</span>
+    <span class="n">address</span> <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.254</span>
+    <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span>
+
+<span class="c1"># The public network interface</span>
+<span class="n">auto</span> <span class="n">eth1</span>
+<span class="n">iface</span> <span class="n">eth1</span> <span class="n">inet</span> <span class="n">dhcp</span>
+</pre></div>
+</div>
+<p>start the dhcp server:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="n">isc</span><span class="o">-</span><span class="n">dhcp</span><span class="o">-</span><span class="n">server</span> <span class="n">start</span>
+</pre></div>
+</div>
+<p>To actually boot something, you'll need to create a config file for
+pxelinux under <code class="docutils literal"><span class="pre">/var/lib/tftpboot/pxelinux.cfg/</span></code>. The following will boot from the local disk:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span> <span class="n">disk</span>
+<span class="n">label</span> <span class="n">disk</span>
+    <span class="n">LOCALBOOT</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>We use this as <code class="docutils literal"><span class="pre">/var/lib/tftpboot/pxelinux.cfg/default</span></code>, which is the config file for machines that don't have a more specific config provided.</p>
+<p>You can mount the virtio filesystem we set up via (e.g.):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mount</span> <span class="o">-</span><span class="n">t</span> <span class="mi">9</span><span class="n">p</span> <span class="o">-</span><span class="n">o</span> <span class="n">ro</span><span class="p">,</span><span class="n">trans</span><span class="o">=</span><span class="n">virtio</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">moc</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">moc</span>
+</pre></div>
+</div>
+<p>We have the following in /etc/fstab:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">moc</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">moc</span> <span class="mi">9</span><span class="n">p</span> <span class="n">noauto</span><span class="p">,</span><span class="n">ro</span><span class="p">,</span><span class="n">trans</span><span class="o">=</span><span class="n">virtio</span> <span class="mi">0</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>The mount type, '9p', is a Plan 9 network protocol by which the host filesystem is being exported.  The <code class="docutils literal"><span class="pre">noauto</span></code> option prevents the filesystem from being mounted during the boot process. This is a workaround for an as yet unexplained issue where the filesystem will fail to mount during boot, but mounts fine once the machine is up. we put:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mount</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">moc</span>
+</pre></div>
+</div>
+<p>At the beginning of <code class="docutils literal"><span class="pre">/etc/rc.local</span></code> to achieve the same effect.</p>
+<p>This directory contains a file <code class="docutils literal"><span class="pre">machines.txt</span></code>, which looks like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">mac</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">management</span><span class="o">-</span><span class="n">ip</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">mac</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">management</span><span class="o">-</span><span class="n">ip</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>with one line per slave node. The mac address corresponds to the interface on the private network, and the ip address is the AMT management BIOS's management ip.</p>
+<p>To get the various scripts we need onto the headnode, we can do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">CCI</span><span class="o">-</span><span class="n">MOC</span><span class="o">/</span><span class="n">moc</span><span class="o">-</span><span class="n">public</span>
+<span class="n">cd</span> <span class="n">moc</span><span class="o">-</span><span class="n">public</span><span class="o">/</span><span class="n">python</span><span class="o">-</span><span class="n">mocutils</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>This includes things like power_cycle, linky.py, etc.</p>
+<div class="section" id="http-server">
+<span id="http-server"></span><h2>HTTP Server<a class="headerlink" href="#http-server" title="Permalink to this headline">¶</a></h2>
+<p>We have an http server running on our head nodes as well, for two reasons:</p>
+<ol class="simple">
+<li>We want to use kickstart to do centos installs, and it can't grab the ks.cfg file from tftp</li>
+<li>We need a way for the installer to notify the head node that the installation is complete, so that the next time the machine boots, pxelinux will chainload to the disk, rather than start another install.</li>
+</ol>
+<p>To this end, we configure our server as follows:</p>
+<ul class="simple">
+<li>our document root is <code class="docutils literal"><span class="pre">/var/lib/tftpboot</span></code>.</li>
+<li>We have a cgi script ready to handle notifications from the installer.</li>
+</ul>
+<p>We're currently using nginx as our web server, though there isn't a particular reason for that. The bulk of our configuration is in <code class="docutils literal"><span class="pre">/etc/nginx/sites-enabled/tftp</span></code>, which looks like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>server {
+    # We only want to listen on the private interface; the public internet
+    # doesn&#39;t need access.
+    listen 192.168.10.254:80;
+
+    root /var/lib/tftpboot;
+    index index.html index.htm;
+
+    # Make site accessible from http://localhost/
+    server_name localhost;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to index.html
+        try_files $uri $uri/ /index.html;
+    }
+
+    # This allows the kickstart post-install script to inform us that it
+    # should boot to the disk going forward, rather than starting the
+    # installer.
+    location /boot-default/ {
+        fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+        fastcgi_param SCRIPT_FILENAME /usr/local/bin/boot-default.py;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+    }
+
+}
+</pre></div>
+</div>
+<p>For the second block to work, We need fcgiwrap installed and running.</p>
+<p>The script itself is installed with the rest of python-mocutils. for it to
+work, the webserver user needs write access to
+<code class="docutils literal"><span class="pre">/var/lib/tftpboot/pxelinux.cfg</span></code>.</p>
+</div>
+</div>
+<div class="section" id="kickstarting-centos">
+<span id="kickstarting-centos"></span><h1>Kickstarting CentOS<a class="headerlink" href="#kickstarting-centos" title="Permalink to this headline">¶</a></h1>
+<p>In order to do a PXE based install of centos, we created a directory
+<code class="docutils literal"><span class="pre">/var/lib/tftpboot/centos</span></code>, with the following contents:</p>
+<ul>
+<li><p class="first">our <a class="reference external" href="/CCI-MOC/moc-public/blob/master/ks.cfg">ks.cfg</a>. This sets up CentOS, puppetizes it, and adds the repos we
+need for openstack (and puppet, of course).</p>
+</li>
+<li><p class="first">The centos kernel and initrd. These can be obtained from the CentOS 6.4
+install cd - they are the files <code class="docutils literal"><span class="pre">vmlinuz</span></code> and <code class="docutils literal"><span class="pre">initrd.img</span></code> in the
+<code class="docutils literal"><span class="pre">isolinux</span></code> directory.</p>
+</li>
+<li><p class="first">A file <code class="docutils literal"><span class="pre">pxelinux.cfg</span></code>, which looks like:</p>
+<p>default rhel
+label rhel
+kernel centos/vmlinuz
+append initrd=centos/initrd.img quiet ksdevice=eth0 ks=http://192.168.10.254/centos/ks.cfg</p>
+</li>
+</ul>
+<p>The <code class="docutils literal"><span class="pre">ksdevice</span></code> parameter makes sure the machine grabs <code class="docutils literal"><span class="pre">ks.cfg</span></code> via the private
+network. It may not actually be necessary to specify this.</p>
+<p>To actually start an install we need to make symlinks to this file in
+<code class="docutils literal"><span class="pre">/var/lib/tftpboot/pxelinux.cfg/</span></code>. As an example, if we want to kickstart a
+machine who's mac address is <code class="docutils literal"><span class="pre">aa:bb:cc:dd:ee:ff</span></code>, We could do:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tftpboot</span><span class="o">/</span><span class="n">pxelinux</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">../</span><span class="n">centos</span><span class="o">/</span><span class="n">pxelinux</span><span class="o">.</span><span class="n">cfg</span> <span class="mi">01</span><span class="o">-</span><span class="n">aa</span><span class="o">-</span><span class="n">bb</span><span class="o">-</span><span class="n">cc</span><span class="o">-</span><span class="n">dd</span><span class="o">-</span><span class="n">ee</span><span class="o">-</span><span class="n">ff</span>
+</pre></div>
+</div>
+<p>(In general, replace the colons in the mac with dashes, and prepend an <code class="docutils literal"><span class="pre">01-</span></code>).
+Then, We can power-cycle the machine, and it will do an install, then reboot.
+The last line in <code class="docutils literal"><span class="pre">ks.cfg</span></code> invokes the cgi script mentioned above, which will
+delete our symlink. We want machines not doing an install to boot from disk,
+so <code class="docutils literal"><span class="pre">/var/lib/tftpboot/pxelinux.cfg/default</span></code> should look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span> <span class="n">disk</span>
+<span class="n">label</span> <span class="n">disk</span>
+    <span class="n">LOCALBOOT</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>The script <a class="reference external" href="/CCI-MOC/moc-public/python-mocutils/scripts/linky.py">linky.py</a> will automate creating links for all of the machines
+listed in <code class="docutils literal"><span class="pre">/etc/moc/machines.txt</span></code>, and then power cycling them to start the
+install.</p>
+</div>
+<div class="section" id="iptables-setup">
+<span id="iptables-setup"></span><h1>iptables setup<a class="headerlink" href="#iptables-setup" title="Permalink to this headline">¶</a></h1>
+<p>We have a number of services running on the headnode, and while most of them
+are configured to only listen on the private interface, it would be prudent to
+ensure that we're not accepting unwanted traffic from the outside. to that
+end, we configure iptables to drop everything coming from outside, except ssh
+traffic.</p>
+</div>
+<div class="section" id="puppet">
+<span id="puppet"></span><h1>Puppet<a class="headerlink" href="#puppet" title="Permalink to this headline">¶</a></h1>
+<p>We have a puppetmaster set up, as described at [[MOCPOC: Puppet Openstack Install (on Ubuntu)]] and
+[[MOCPOC: Puppet Openstack Install (on Centos)]]</p>
+</div>
+<div class="section" id="todo">
+<span id="todo"></span><h1>TODO:<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Vlan-Head-Nodes.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

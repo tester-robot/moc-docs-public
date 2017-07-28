@@ -1,0 +1,260 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Contents &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>This wiki page documents the process of setting up OpenStack using Puppet Lab's OpenStack module. It primarily contains notes related to the specific hardware set up of the MOCPOC test cloud and is only a supplement to the original documentation (found <a class="reference external" href="https://github.com/stackforge/puppet-openstack">here</a>).</p>
+<div class="section" id="contents">
+<span id="contents"></span><h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="#start">Start</a></li>
+<li><a class="reference external" href="#single-node">Single-Node OpenStack</a></li>
+<li><a class="reference external" href="#multi-node">Multi-Node Openstack</a></li>
+</ul>
+<p><a name="start"></a></p>
+</div>
+<div class="section" id="start">
+<span id="start"></span><h1>Start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-puppet-on-ubuntu">
+<span id="installing-puppet-on-ubuntu"></span><h2>Installing Puppet on Ubuntu<a class="headerlink" href="#installing-puppet-on-ubuntu" title="Permalink to this headline">¶</a></h2>
+<p>The standard Ubuntu Precise repositories are too old, so enable the Puppetlabs repo, and then install Puppet.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">apt</span><span class="o">.</span><span class="n">puppetlabs</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">puppetlabs</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="n">precise</span><span class="o">.</span><span class="n">deb</span>
+<span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">puppetlabs</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="n">precise</span><span class="o">.</span><span class="n">deb</span>
+<span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">puppet</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="openstack-module">
+<span id="openstack-module"></span><h2>Openstack Module<a class="headerlink" href="#openstack-module" title="Permalink to this headline">¶</a></h2>
+<p>Install the most recent release (1.1.0) from the forge:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">module</span> <span class="n">install</span> <span class="n">puppetlabs</span><span class="o">-</span><span class="n">openstack</span>
+</pre></div>
+</div>
+<p><a name="single-node"></a></p>
+</div>
+</div>
+<div class="section" id="single-node-openstack-a-test-install">
+<span id="single-node-openstack-a-test-install"></span><h1>Single-Node OpenStack (a test install)<a class="headerlink" href="#single-node-openstack-a-test-install" title="Permalink to this headline">¶</a></h1>
+<p>Used: A single desktop machine running Ubuntu 12.04 with two nics.</p>
+<div class="section" id="network-configuration">
+<span id="network-configuration"></span><h2>Network Configuration<a class="headerlink" href="#network-configuration" title="Permalink to this headline">¶</a></h2>
+<p>This configuration uses nova-network's <a class="reference external" href="http://docs.openstack.org/trunk/openstack-compute/admin/content/configuring-flat-dhcp-networking.html">Flat DHCP</a> in multi-host mode (soon to be deprecated in favor of Quantum).</p>
+<ul class="simple">
+<li>Public Network: Set to eth1, connected to the outside world</li>
+<li>Private Network: Set to eth0, a nic connected to nothing. Nova-Network expects a private nic it can configure and bridge VM to.</li>
+</ul>
+</div>
+<div class="section" id="block-storage">
+<span id="block-storage"></span><h2>Block Storage<a class="headerlink" href="#block-storage" title="Permalink to this headline">¶</a></h2>
+<p>If you do not set cinder, puppet will try to configure nova-volume. To use nova-volume, you must create a volume group named cinder-volumes, otherwise create nova-volumes.</p>
+<div class="section" id="volume-group">
+<span id="volume-group"></span><h3>Volume Group<a class="headerlink" href="#volume-group" title="Permalink to this headline">¶</a></h3>
+<p>Write a file the size of the LVM volume you want to create, associate with loop device, and make a partition table with a single, primary partition with system id 8e (for LVM):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ dd if=/dev/zero of=cinder-volumes bs=1 count=0 seek=2G
+$ losetup /dev/loop2 cinder-volumes
+$ fdisk /dev/loop2
+#Type in the followings:
+$ n
+$ p
+$ 1
+$ ENTER
+$ ENTER
+$ t
+$ 8e
+$ w
+</pre></div>
+</div>
+<p>After this formatting, you might have to run <code class="docutils literal"><span class="pre">partprobe</span></code> to update the kernel's partition table. Then initialize the disk to be used by LVM,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pvcreate /dev/loop2
+$ vgcreate cinder-volumes /dev/loop2
+</pre></div>
+</div>
+<p>After creating and attaching cinder storage, configure (with mkfs) and mount.</p>
+</div>
+</div>
+<div class="section" id="rabbitmq">
+<span id="rabbitmq"></span><h2>RabbitMQ<a class="headerlink" href="#rabbitmq" title="Permalink to this headline">¶</a></h2>
+<p>Do not set rabbit user (correctly defaults to nova user)
+This breaks authentication with rabbit -- I don't know why</p>
+</div>
+<div class="section" id="run">
+<span id="run"></span><h2>Run!<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h2>
+<p>To begin the cascade of puppet manifests that configure your hardware with all components of Openstack, you simple need to set a collection of variables in one puppet file.  To configure OpenStack exactly as describe above, use the all-in-one.pp manifest in the <a class="reference external" href="https://github.com/CCI-MOC/moc-public/tree/master/puppet-manifests">puppet-manifest</a> folder of this git repository.</p>
+<p>Note:</p>
+<ul class="simple">
+<li>Original example file can be found in directory: puppet/modules/openstack/examples/site.pp</li>
+<li>The first class called is a module that can be found here: puppet/modules/openstack/manifests/all.pp</li>
+</ul>
+<p>Now, to begin OpenStack:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ puppet apply all-in-one.pp --certname openstack_all
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">--certname</span></code> flag specifies the configuration of the <code class="docutils literal"><span class="pre">openstack_all</span></code> node. This file includes the configuration of only one type of node, where as the original site.pp has includes classes to configure a control node and compute node separately.  You do not have to include the <code class="docutils literal"><span class="pre">--certname</span></code> flag if the hostname of the machine is the same as <code class="docutils literal"><span class="pre">openstack_all</span></code>.</p>
+<p><a name="multi-node"></a></p>
+</div>
+</div>
+<div class="section" id="multi-node-openstack-with-puppet-master">
+<span id="multi-node-openstack-with-puppet-master"></span><h1>Multi-Node Openstack (with Puppet Master)<a class="headerlink" href="#multi-node-openstack-with-puppet-master" title="Permalink to this headline">¶</a></h1>
+<p>Again, working through the official tutorial <a class="reference external" href="https://github.com/stackforge/puppet-openstack">here</a>.</p>
+<p>Notes/Todos:</p>
+<ul>
+<li><p class="first">set ephemeral storage to use local disk (root file system is NFS for all compute nodes). Use <code class="docutils literal"><span class="pre">instance</span> <span class="pre">path</span></code> flag in nova.conf (<a class="reference external" href="http://docs.openstack.org/folsom/openstack-compute/admin/content/list-of-compute-config-options.html">nova conf documentation</a>)</p>
+</li>
+<li><p class="first">You can use the nova_config type outside of the openstack modules to set any additional nova.conf parameter. For example:</p>
+<p>nova_config { 'instances_path': value =&gt; '/path/to/instances' }</p>
+</li>
+<li><p class="first">Each OpenStack component has its own *_config type. Grep the manifests in the openstack module to see more examples.</p>
+</li>
+</ul>
+<div class="section" id="physical-configuration">
+<span id="physical-configuration"></span><h2>Physical Configuration<a class="headerlink" href="#physical-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Puppet Master will run on Deathstar in the moc-nova VM (see: [[Networking Configuration of MOC POC]])</li>
+<li>Puppet Slave is in the PXE booted cluster, using Temple with ip address 192.168.3.11, nat'ed through Deathstar to outside world</li>
+</ul>
+</div>
+<div class="section" id="installing-puppet-master-and-connecting-to-client">
+<span id="installing-puppet-master-and-connecting-to-client"></span><h2>Installing puppet master and connecting to client<a class="headerlink" href="#installing-puppet-master-and-connecting-to-client" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Follow the  Installing Puppet instructions in this wiki</p>
+</li>
+<li><p class="first">Follow the Install Puppet instructions in https://github.com/stackforge/puppet-openstack</p>
+</li>
+<li><p class="first">When editing /etc/puppet/puppet.conf on the client, change &lt;CONTROLLER_HOSTNAME&gt; to moc-puppet-master.bu.edu or whatever else the puppet master is called</p>
+</li>
+<li><p class="first">Ensure that /etc/hosts on the client includes 127.0.1.1 moc-puppet-client and a line with the ip and alias for moc-puppet-master.bu.edu and moc-puppet-master:</p>
+<p>127.0.1.1       moc-puppet-client
+192.168.3.74    moc-puppet-master.bu.edu    moc-puppet-master</p>
+</li>
+<li><p class="first">Similarly ensure that /etc/hosts on the master includes</p>
+<p>127.0.1.1      moc-puppet-master</p>
+</li>
+</ul>
+</div>
+<div class="section" id="steps-done">
+<span id="steps-done"></span><h2>Steps done<a class="headerlink" href="#steps-done" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>configured cinder-volumes volume group on moc-nova</li>
+<li>configured moc-nova as puppet master<ul>
+<li>apt-get install rake git puppetmaster</li>
+</ul>
+</li>
+<li>DID NOT enable to mess with [storeconfigs](http://projects.puppetlabs.com/projects/1/wiki
+/Using_Stored_Configuration), needed for openstack puppet master, according to docs</li>
+<li>installed puppet on moc-nova</li>
+<li>installed puppet on Temple</li>
+</ul>
+<p><a name="multi-node-vms"></a></p>
+</div>
+</div>
+<div class="section" id="multi-node-openstack-on-vms-with-puppet-master">
+<span id="multi-node-openstack-on-vms-with-puppet-master"></span><h1>Multi-Node Openstack,on VMs (with Puppet Master)<a class="headerlink" href="#multi-node-openstack-on-vms-with-puppet-master" title="Permalink to this headline">¶</a></h1>
+<p>NO LONGER BEING WORKED ON</p>
+<p>steps:</p>
+<ol class="simple">
+<li>set up networking, two bridges.<ul>
+<li>br1: public,  bridged to eth1 and master's tap1 interface</li>
+<li>br0: private, bridged only to master's tap0 interface and slave's tap2 interfaces</li>
+</ul>
+</li>
+</ol>
+<p>Other notes:
+sudo apt-get install bridge-utils uml-utilities qemu-kvm</p>
+<ol class="simple">
+<li>set up tap interfaces and add to bridge? can we do this in /etc/network/interfaces?</li>
+<li>create disk for VMS</li>
+<li>create vms</li>
+</ol>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MOCPOC:-Puppet-Openstack-Install-(on-Ubuntu).md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

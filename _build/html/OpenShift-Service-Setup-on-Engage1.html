@@ -1,0 +1,373 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<ol>
+<li><p class="first">Goal, install OpenShift on Engage1 with the following features:</p>
+<p>High Availability
+Multi-tenant networking
+Using Keystone Authentication
+multiple docker registries using swift
+dynamically allocated persistent volumes using cinder
+Pruning of image/deployments/builds
+Monitoring
+cluster resource contraints
+default project contraints
+define roles in open shift and map them to keystone
+cluster topology</p>
+<p>Instructions can be found at (https://docs.openshift.com/container-platform/3.5/install_config/install/quick_install.html)</p>
+</li>
+<li><p class="first">A shared network must exist between master and node hosts</p>
+<p>--&gt; this may limit a general instance to one project, and instances for private data to individual projects.</p>
+<p>--&gt; The OpenStack subnetwork is set to 10.0.0.0/20 (IPv4) GatewayIP 10.0.0.1</p>
+<p>--&gt; The OpenShift service subnetwork is set to 172.30.0.0/16</p>
+</li>
+<li><p class="first">2 sets of VMs were created as other people also need this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">Name</span>        <span class="n">internal</span> <span class="n">ip</span> <span class="n">external</span> <span class="n">ip</span>  <span class="n">VCPU</span> <span class="n">RAM</span><span class="p">(</span><span class="n">GB</span><span class="p">)</span>  <span class="n">node</span> <span class="n">domain</span>  <span class="n">volume</span><span class="p">(</span><span class="n">GB</span><span class="p">)</span>
+ <span class="n">master</span><span class="o">-</span><span class="mi">1</span>    <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.6</span>    <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.70</span>    <span class="mi">8</span>      <span class="mi">16</span>        <span class="n">infra</span>         <span class="mi">300</span>
+ <span class="n">master</span><span class="o">-</span><span class="mi">2</span>    <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.5</span>    <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.69</span>    <span class="mi">8</span>      <span class="mi">16</span>        <span class="n">infra</span>         <span class="mi">300</span>
+ <span class="n">etcd</span><span class="o">-</span><span class="mi">1</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.14</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.63</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">etcd</span><span class="o">-</span><span class="mi">2</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.12</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.74</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">etcd</span><span class="o">-</span><span class="mi">3</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.15</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.15</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">node</span><span class="o">-</span><span class="mi">1</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.16</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.38</span>    <span class="mi">2</span>       <span class="mi">4</span>        <span class="n">infra</span>          <span class="mi">80</span>
+ <span class="n">node</span><span class="o">-</span><span class="mi">2</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.9</span>    <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.11</span>    <span class="mi">2</span>       <span class="mi">4</span>        <span class="n">infra</span>          <span class="mi">80</span>
+ <span class="n">node</span><span class="o">-</span><span class="mi">3</span>      <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.13</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.37</span>    <span class="mi">2</span>       <span class="mi">4</span>      <span class="n">default</span>          <span class="mi">80</span>
+
+ <span class="n">m</span><span class="o">-</span><span class="mi">1</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.15</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.40</span>    <span class="mi">8</span>      <span class="mi">16</span>        <span class="n">infra</span>         <span class="mi">300</span>
+ <span class="n">m</span><span class="o">-</span><span class="mi">2</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.17</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.68</span>    <span class="mi">8</span>      <span class="mi">16</span>        <span class="n">infra</span>         <span class="mi">300</span>
+ <span class="n">e</span><span class="o">-</span><span class="mi">1</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.11</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.81</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">e</span><span class="o">-</span><span class="mi">2</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.18</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.89</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">e</span><span class="o">-</span><span class="mi">3</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.20</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.73</span>    <span class="mi">2</span>       <span class="mi">4</span>                       <span class="mi">10</span>
+ <span class="n">n</span><span class="o">-</span><span class="mi">1</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.10</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.76</span>    <span class="mi">2</span>       <span class="mi">4</span>        <span class="n">infra</span>          <span class="mi">80</span>
+ <span class="n">n</span><span class="o">-</span><span class="mi">2</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.19</span>   <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.75</span>    <span class="mi">2</span>       <span class="mi">4</span>        <span class="n">infra</span>          <span class="mi">80</span>
+ <span class="n">n</span><span class="o">-</span><span class="mi">3</span>         <span class="mf">10.1</span><span class="o">.</span><span class="mf">0.6</span>    <span class="mf">128.31</span><span class="o">.</span><span class="mf">22.82</span>    <span class="mi">2</span>       <span class="mi">4</span>      <span class="n">default</span>          <span class="mi">80</span>
+</pre></div>
+</div>
+<p>These were registered in a subdomain using an external DNS server.</p>
+<p>By default, SELinix is enabled - to check:
+view: /etc/selinux/config</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">SELINUX</span> <span class="o">=</span> <span class="n">enforcing</span>
+ <span class="n">SELINUXTYPE</span><span class="o">=</span><span class="n">targeted</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">on every VM, run the following perl script:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> #!/usr/perl
+ 
+ #read the pool id from the subscription
+ my $pool_id=0;
+ if( open(FP,&quot;subscription-manager list --available --matches &#39;*Red Hat OpenShift Container Platform, Standard*&#39; |&quot;))
+     {
+     while(my $line=&lt;FP&gt;)
+         {
+         print &quot;line $line&quot;;
+         if($line=~ /^Pool ID:[ \t]+([0-9a-fA-F]+)/)
+             {
+             print &quot;***&gt; found pool_id&quot;;
+             $pool_id=$1;
+             }
+         }
+     }
+ if($pool_id==0) 
+     {
+     print &quot;Error: pool_id not found, check the subscription-manager list&quot;;
+     die();
+     }
+ 
+ system(&#39;subscription-manager attach --pool=&#39;.$pool_id);
+ system(&#39;yum -y install yum-utils&#39;);
+ system(&#39;subscription-manager repos --disable=&quot;*&quot;&#39;);
+ system(&#39;yum-config-manager --disable \*&#39;);
+ system(&#39;subscription-manager repos &#39;
+         .&#39; --enable=&quot;rhel-7-server-rpms&quot;&#39;
+         .&#39; --enable=&quot;rhel-7-server-extras-rpms&quot;&#39;
+         .&#39; --enable=&quot;rhel-7-server-ose-3.5-rpms&quot;&#39;
+         .&#39; --enable=&quot;rhel-7-fast-datapath-rpms&quot;&#39;);
+ system(&#39;yum -y install wget git net-tools bind-utils iptables-services bridge-utils&#39;
+          .&#39; bash-completion gcc python-virtualenv atomic-openshift-utils&#39;
+          .&#39; atomic-openshift-excluder atomic-openshift-docker-excluder&#39;);
+ system(&#39;yum -y update&#39;);
+ system(&#39;atomic-openshift-excluder unexclude&#39;);
+ system(&#39; yum -y install docker&#39;);
+ 
+ # add insecure-registry to the /etc/sysconfig/docker file
+ if( open(my $fh, &#39;&lt;&#39;, &quot;/etc/sysconfig/docker&quot;) )
+     {
+     my @lines=&lt;$fh&gt;;
+     close($fh);
+     open($fh, &#39;&gt;&#39;, &quot;/etc/sysconfig/docker&quot;);
+     foreach $l (@lines)
+         {
+         # find  OPTIONS=&#39;--selinux-enabled --insecure-registry 172.30.0.0/16&#39;
+         if($l=~/^OPTIONS[ \t]*/ &amp;&amp; !($l=~/insecure-registry/))
+             {
+             $l=~/[^&#39;]+&#39;[^&#39;]+/;
+             print $fh $&amp;.&quot; --insecure-registry 172.30.0.0/16&#39;\n&quot;;
+             print $&amp;.&quot; --insecure-registry 172.30.0.0/16&#39;\n&quot;;
+             }
+         else
+             {
+             print $fh $l;
+             print $l;
+             }
+         }
+     close($fh);
+     }
+ else
+     {
+     print &quot;Error cannot find /etc/sysconfig/docker&quot;;
+     die();
+     }
+
+ # Do the simple stupid thing with /etc/sysconfig/docker-storage-setup
+ if( open( my $fh, &#39;&gt;&#39;, &quot;/etc/sysconfig/docker-storage-setup&quot;))
+     {
+     print $fh &quot;DEVS=vdb\n&quot;;
+     print $fh &quot;VG=docker-vg\n&quot;;
+     close($fh);
+     }
+ system(&#39;docker-storage-setup&#39;);
+
+ #Add rados and erics public keys to the authorized hosts files
+ my $robs_key= &#39;Robs public key&#39;;
+ my $rados_key=&#39;Rados public key&#39;;
+ my $erics_key=&#39;Erics public key&#39;;
+
+ if( open( my $fh, &#39;&gt;&#39;, &quot;/root/.ssh/authorized_keys&quot;))
+     {
+     print $fh $robs_key.&quot;\n&quot;;
+     print $fh $rados_key.&quot;\n&quot;;
+     print $fh $erics_key.&quot;\n&quot;;
+     close($fh);
+     }
+ 
+ if( open( my $fh, &#39;&gt;&#39;, &quot;/home/cloud-user/.ssh/authorized_keys&quot;))
+     {
+     print $fh $robs_key.&quot;\n&quot;;
+     print $fh $rados_key.&quot;\n&quot;;
+     print $fh $erics_key.&quot;\n&quot;;
+     close($fh);
+     }
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Note</span><span class="p">:</span> <span class="n">setup</span> <span class="n">storage</span> <span class="k">for</span> <span class="n">containers</span>
+<span class="n">options</span><span class="p">:</span>
+    <span class="n">Option</span> <span class="n">A</span><span class="p">)</span> <span class="n">Use</span> <span class="n">an</span> <span class="n">additional</span> <span class="n">block</span> <span class="n">device</span>
+    <span class="n">Option</span> <span class="n">B</span><span class="p">)</span> <span class="n">Use</span> <span class="n">an</span> <span class="n">existing</span><span class="p">,</span> <span class="n">specified</span> <span class="n">volume</span> <span class="n">group</span>
+    <span class="n">Option</span> <span class="n">C</span><span class="p">)</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">remaining</span> <span class="n">free</span> <span class="n">space</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">volume</span> <span class="n">group</span> <span class="n">where</span> <span class="n">your</span> <span class="n">root</span> <span class="n">file</span> <span class="ow">is</span> <span class="n">located</span>
+
+<span class="n">For</span> <span class="n">either</span> <span class="n">A</span> <span class="ow">or</span> <span class="n">B</span> <span class="p">(</span><span class="n">uses</span> <span class="n">the</span> <span class="n">volumes</span> <span class="n">created</span> <span class="ow">in</span> <span class="n">step</span> <span class="mi">3</span><span class="p">),</span> <span class="n">On</span> <span class="n">each</span> <span class="n">system</span><span class="p">:</span>
+
+    <span class="n">vi</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sysconfig</span><span class="o">/</span><span class="n">docker</span>
+    
+    <span class="n">The</span> <span class="n">file</span> <span class="n">only</span> <span class="n">needs</span> <span class="n">these</span> <span class="mi">2</span> <span class="n">lines</span><span class="p">:</span>
+
+        <span class="n">DEVS</span><span class="o">=</span><span class="n">vdb</span>
+        <span class="n">VG</span><span class="o">=</span><span class="n">docker</span><span class="o">-</span><span class="n">vg</span>
+
+    <span class="n">Note</span><span class="p">:</span> <span class="n">the</span> <span class="n">OpenShift</span> <span class="ow">and</span> <span class="n">Redhat</span> <span class="n">documentation</span> <span class="n">will</span> <span class="n">have</span> <span class="n">DEVS</span><span class="o">=/</span><span class="n">dev</span><span class="o">/</span><span class="n">vdc</span><span class="p">,</span> <span class="n">however</span> <span class="n">the</span> <span class="n">mount</span> 
+          <span class="n">point</span> <span class="ow">is</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">vdb</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">docker</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">setup</span> <span class="n">script</span> <span class="n">will</span> <span class="n">give</span> <span class="n">an</span> <span class="n">error</span> <span class="n">saying</span> 
+          <span class="s1">&#39;/dev//dev/vdb does not exist&#39;</span><span class="p">,</span> <span class="n">so</span> <span class="n">just</span> <span class="n">use</span> <span class="n">vdb</span><span class="o">.</span>
+
+    <span class="n">run</span><span class="p">:</span>
+ 
+        <span class="n">docker</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">setup</span>
+</pre></div>
+</div>
+<ol>
+<li><p class="first">Ensure host Access</p>
+<p>use ssh key forwarding, and from the host ensure access to each node just using the short name (m-1, m-2, e-1, e-2, e-3, n-1, n-2, n-3).</p>
+</li>
+</ol>
+<ol>
+<li><p class="first">Follow the Advanced Install for OpenShift</p>
+<p>On the master edit /etc/ansible/hosts file</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">vi</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">ansible</span><span class="o">/</span><span class="n">hosts</span>
+</pre></div>
+</div>
+<p>File contents:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">OSEv3</span><span class="p">:</span><span class="n">children</span><span class="p">]</span>
+<span class="n">masters</span>
+<span class="n">etcd</span>
+<span class="n">nodes</span>
+
+<span class="c1"># Set variables common for all OSEv3 hosts</span>
+<span class="p">[</span><span class="n">OSEv3</span><span class="p">:</span><span class="nb">vars</span><span class="p">]</span>
+<span class="n">ansible_ssh_user</span><span class="o">=</span><span class="n">root</span>
+
+<span class="c1">#use keystone as the identity provider</span>
+<span class="n">openshift_master_identity_providers</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;keystone_auth&#39;</span><span class="p">,</span> <span class="s1">&#39;login&#39;</span><span class="p">:</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;challenge&#39;</span><span class="p">:</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;[OpenStack Keystone URL]&#39;</span><span class="p">,</span> <span class="s1">&#39;domainName&#39;</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;kind&#39;</span><span class="p">:</span> <span class="s1">&#39;KeystonePasswordIdentityProvider&#39;</span><span class="p">}]</span>
+
+<span class="c1"># use OpenStack as the cloud provider</span>
+<span class="c1"># Openstack</span>
+<span class="n">openshift_cloudprovider_kind</span><span class="o">=</span><span class="n">openstack</span>
+<span class="n">openshift_cloudprovider_openstack_auth_url</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Keystone</span> <span class="n">URL</span><span class="p">]</span>
+<span class="n">openshift_cloudprovider_openstack_username</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Username</span><span class="p">]</span>
+<span class="n">openshift_cloudprovider_openstack_password</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Password</span><span class="p">]</span>
+<span class="n">openshift_cloudprovider_openstack_domain_name</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Domain</span> <span class="n">Name</span><span class="p">]</span>
+<span class="n">openshift_cloudprovider_openstack_tenant_name</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Project</span> <span class="n">Name</span><span class="p">]</span>
+<span class="n">openshift_cloudprovider_openstack_region</span><span class="o">=</span><span class="p">[</span><span class="n">OpenStack</span> <span class="n">Region</span> <span class="n">Name</span><span class="p">]</span>
+
+<span class="n">openshift_master_default_subdomain</span><span class="o">=</span><span class="n">osh</span><span class="o">.</span><span class="n">massopen</span><span class="o">.</span><span class="n">cloud</span>
+
+<span class="n">openshift_master_cluster_method</span><span class="o">=</span><span class="n">native</span>
+
+<span class="n">debug_level</span><span class="o">=</span><span class="mi">6</span>
+<span class="n">deployment_type</span><span class="o">=</span><span class="n">openshift</span><span class="o">-</span><span class="n">enterprise</span>
+<span class="c1"># containerized=false</span>
+
+<span class="c1"># start with this on, disable after the cluster is up - we are using an outside DNS server and resolv.conf is managed by openstack - should this be false?</span>
+<span class="c1"># openshift_use_dnsmasq=false</span>
+
+<span class="c1"># here are the network settings</span>
+<span class="n">os_sdn_network_plugin_name</span><span class="o">=</span><span class="n">redhat</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">ovs</span><span class="o">-</span><span class="n">multitenant</span>
+<span class="n">osm_cluster_network_cidr</span><span class="o">=</span><span class="mf">10.128</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">14</span>
+<span class="n">osm_host_subnet_length</span><span class="o">=</span><span class="mi">8</span>
+<span class="c1"># defines the Service Network CIDR</span>
+<span class="n">openshift_portal_net</span><span class="o">=</span><span class="mf">172.30</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span>
+
+<span class="p">[</span><span class="n">masters</span><span class="p">]</span>
+<span class="n">m</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.40</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.40</span> <span class="n">containerized</span><span class="o">=</span><span class="n">false</span>
+<span class="n">m</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">m</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.68</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.68</span> <span class="n">containerized</span><span class="o">=</span><span class="n">false</span>
+
+<span class="p">[</span><span class="n">etcd</span><span class="p">]</span>
+<span class="n">e</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">e</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.81</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.81</span>
+<span class="n">e</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.89</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.89</span>
+<span class="n">e</span><span class="o">-</span><span class="mi">3</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.73</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.73</span>
+
+<span class="p">[</span><span class="n">nodes</span><span class="p">]</span>
+<span class="n">m</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.40</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.40</span> <span class="n">openshift_node_labels</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;,&#39;zone&#39;:&#39;default&#39;}&quot;</span> <span class="n">openshift_schedulable</span><span class="o">=</span><span class="n">false</span>
+<span class="n">m</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">m</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.68</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.68</span> <span class="n">openshift_node_labels</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;,&#39;zone&#39;:&#39;default&#39;}&quot;</span> <span class="n">openshift_schedulable</span><span class="o">=</span><span class="n">false</span>
+<span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.76</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.76</span> <span class="n">openshift_node_labels</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;,&#39;zone&#39;:&#39;default&#39;}&quot;</span>
+<span class="n">n</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.75</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.75</span> <span class="n">openshift_node_labels</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;,&#39;zone&#39;:&#39;default&#39;}&quot;</span>
+<span class="n">n</span><span class="o">-</span><span class="mi">3</span> <span class="n">openshift_hostname</span><span class="o">=</span><span class="n">n</span><span class="o">-</span><span class="mi">3</span> <span class="n">openshift_public_hostname</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.82</span> <span class="n">openshift_public_ip</span><span class="o">=</span><span class="mf">128.31</span><span class="o">.</span><span class="mf">22.82</span> <span class="n">openshift_node_labels</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;,&#39;zone&#39;:&#39;default&#39;}&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">run</span><span class="p">:</span>
+
+    <span class="n">ansible</span><span class="o">-</span><span class="n">playbook</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">ansible</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">ansible</span><span class="o">/</span><span class="n">playbooks</span><span class="o">/</span><span class="n">byo</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">yml</span>    
+
+<span class="n">At</span> <span class="n">this</span> <span class="n">point</span> <span class="n">we</span> <span class="n">have</span> <span class="n">achieved</span> <span class="n">the</span> <span class="n">following</span><span class="p">:</span>
+
+     <span class="n">High</span> <span class="n">Availability</span>
+     <span class="n">Multi</span><span class="o">-</span><span class="n">tenant</span> <span class="n">networking</span>
+     <span class="n">Keystone</span> <span class="n">Authentication</span>
+     <span class="n">Native</span> <span class="n">Cloud</span> <span class="n">Support</span> <span class="p">(</span><span class="n">about</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="n">to</span> <span class="n">persistent</span> <span class="n">volumes</span><span class="p">)</span><span class="o">.</span>
+
+<span class="n">Notes</span><span class="p">:</span> 
+
+    <span class="mi">1</span><span class="p">)</span> <span class="n">there</span> <span class="n">are</span> <span class="n">several</span> <span class="n">values</span> <span class="n">that</span> <span class="n">need</span> <span class="n">to</span> <span class="n">be</span> <span class="n">changed</span> <span class="n">when</span> <span class="n">the</span> <span class="n">virtual</span> <span class="n">machines</span> <span class="n">are</span> <span class="n">restarted</span>
+
+    <span class="mi">2</span><span class="p">)</span> <span class="n">Will</span> <span class="n">need</span> <span class="n">clean</span> <span class="n">virtual</span> <span class="n">machines</span> <span class="n">after</span> <span class="n">every</span> <span class="n">run</span> <span class="k">as</span> <span class="n">the</span> <span class="n">ansible</span> <span class="n">scripts</span> <span class="n">don</span><span class="s1">&#39;t clean up after</span>
+       <span class="n">themselves</span><span class="o">.</span>  <span class="n">It</span> <span class="ow">is</span> <span class="n">faster</span> <span class="n">to</span> <span class="n">reinitialize</span> <span class="n">the</span> <span class="n">VMs</span><span class="o">.</span>
+
+    <span class="mi">3</span><span class="p">)</span> <span class="n">Generally</span> <span class="n">need</span> <span class="n">to</span> <span class="n">have</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">three</span> <span class="n">Infra</span> <span class="n">nodes</span> <span class="o">-</span> <span class="nb">all</span> <span class="n">other</span> <span class="n">nodes</span> <span class="n">can</span> <span class="n">be</span> <span class="n">region</span> <span class="s1">&#39;Default&#39;</span>
+
+    <span class="mi">4</span><span class="p">)</span> <span class="n">The</span> <span class="n">master</span> <span class="n">node</span> <span class="n">should</span> <span class="ow">not</span> <span class="n">be</span> <span class="n">schedulable</span><span class="o">.</span>
+
+    <span class="mi">5</span><span class="p">)</span> <span class="n">Nodes</span> <span class="n">can</span> <span class="n">be</span> <span class="n">reassigned</span> <span class="n">a</span> <span class="n">region</span> <span class="k">with</span> <span class="s1">&#39;oc label node shiftnode1.moclocal region=infra --overwrite=true&#39;</span>
+
+    <span class="mi">6</span><span class="p">)</span> <span class="n">Before</span> <span class="n">deleting</span> <span class="n">a</span> <span class="n">virtual</span> <span class="n">machine</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> 
+
+            <span class="n">subscription</span><span class="o">-</span><span class="n">manager</span> <span class="n">unregister</span>
+
+        <span class="n">To</span> <span class="n">unsubscribe</span> <span class="n">it</span> <span class="kn">from</span> <span class="nn">RH.</span>
+</pre></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/OpenShift-Service-Setup-on-Engage1.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

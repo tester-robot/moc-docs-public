@@ -1,0 +1,166 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<p>If the router didn't come up cleanly.</p>
+<ol>
+<li><p class="first">delete the router information in the following order</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc get dc</span>
+ <span class="n">NAME</span>               <span class="n">REVISION</span>   <span class="n">DESIRED</span>   <span class="n">CURRENT</span>   <span class="n">TRIGGERED</span> <span class="n">BY</span>
+ <span class="n">docker</span><span class="o">-</span><span class="n">registry</span>    <span class="mi">4</span>          <span class="mi">2</span>         <span class="mi">2</span>         <span class="n">config</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">console</span>   <span class="mi">1</span>          <span class="mi">1</span>         <span class="mi">1</span>         <span class="n">config</span>
+ <span class="n">router</span>             <span class="mi">1</span>          <span class="mi">2</span>         <span class="mi">0</span>         <span class="n">config</span>
+ 
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc delete dc/router</span>
+ <span class="n">deploymentconfig</span> <span class="s2">&quot;router&quot;</span> <span class="n">deleted</span>
+ 
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc get serviceaccounts</span>
+ <span class="n">NAME</span>       <span class="n">SECRETS</span>   <span class="n">AGE</span>
+ <span class="n">builder</span>    <span class="mi">2</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">default</span>    <span class="mi">3</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">deployer</span>   <span class="mi">2</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span>   <span class="mi">3</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">router</span>     <span class="mi">2</span>         <span class="mi">11</span><span class="n">m</span>
+ 
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc delete serviceaccounts/router</span>
+ <span class="n">serviceaccount</span> <span class="s2">&quot;router&quot;</span> <span class="n">deleted</span>
+ 
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc get svc</span>
+ <span class="n">NAME</span>               <span class="n">CLUSTER</span><span class="o">-</span><span class="n">IP</span>      <span class="n">EXTERNAL</span><span class="o">-</span><span class="n">IP</span>   <span class="n">PORT</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>                   <span class="n">AGE</span>
+ <span class="n">docker</span><span class="o">-</span><span class="n">registry</span>    <span class="mf">172.30</span><span class="o">.</span><span class="mf">106.92</span>   <span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>        <span class="mi">5000</span><span class="o">/</span><span class="n">TCP</span>                  <span class="mi">7</span><span class="n">d</span>
+ <span class="n">kubernetes</span>         <span class="mf">172.30</span><span class="o">.</span><span class="mf">0.1</span>      <span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>        <span class="mi">443</span><span class="o">/</span><span class="n">TCP</span><span class="p">,</span><span class="mi">53</span><span class="o">/</span><span class="n">UDP</span><span class="p">,</span><span class="mi">53</span><span class="o">/</span><span class="n">TCP</span>     <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">console</span>   <span class="mf">172.30</span><span class="o">.</span><span class="mf">36.56</span>    <span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>        <span class="mi">9000</span><span class="o">/</span><span class="n">TCP</span>                  <span class="mi">7</span><span class="n">d</span>
+ <span class="n">router</span>             <span class="mf">172.30</span><span class="o">.</span><span class="mf">71.15</span>    <span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>        <span class="mi">80</span><span class="o">/</span><span class="n">TCP</span><span class="p">,</span><span class="mi">443</span><span class="o">/</span><span class="n">TCP</span><span class="p">,</span><span class="mi">1936</span><span class="o">/</span><span class="n">TCP</span>   <span class="mi">11</span><span class="n">m</span>
+
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc delete svc/router</span>
+ <span class="n">service</span> <span class="s2">&quot;router&quot;</span> <span class="n">deleted</span>
+
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc get secrets</span>
+ <span class="n">NAME</span>                       <span class="n">TYPE</span>                                  <span class="n">DATA</span>      <span class="n">AGE</span>
+ <span class="n">builder</span><span class="o">-</span><span class="n">dockercfg</span><span class="o">-</span><span class="mi">5</span><span class="n">gpkg</span>    <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">dockercfg</span>               <span class="mi">1</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">builder</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">z2z91</span>        <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">builder</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">zgr7s</span>        <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">default</span><span class="o">-</span><span class="n">dockercfg</span><span class="o">-</span><span class="n">jp7r1</span>    <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">dockercfg</span>               <span class="mi">1</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">default</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">bj2s5</span>        <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">default</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">kxjfc</span>        <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">deployer</span><span class="o">-</span><span class="n">dockercfg</span><span class="o">-</span><span class="mi">4</span><span class="n">kcgw</span>   <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">dockercfg</span>               <span class="mi">1</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">deployer</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="mi">54</span><span class="n">pd8</span>       <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">deployer</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">q78cq</span>       <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">certificates</span>      <span class="n">Opaque</span>                                <span class="mi">2</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">config</span>            <span class="n">Opaque</span>                                <span class="mi">1</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">dockercfg</span><span class="o">-</span><span class="n">kglpc</span>   <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">dockercfg</span>               <span class="mi">1</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="mi">3</span><span class="n">gds6</span>       <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">registry</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">dn25r</span>       <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">service</span><span class="o">-</span><span class="n">account</span><span class="o">-</span><span class="n">token</span>   <span class="mi">4</span>         <span class="mi">7</span><span class="n">d</span>
+ <span class="n">router</span><span class="o">-</span><span class="n">certs</span>               <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">tls</span>                     <span class="mi">2</span>         <span class="mi">11</span><span class="n">m</span>
+
+ <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oc delete secrets/router-certs</span>
+ <span class="n">secret</span> <span class="s2">&quot;router-certs&quot;</span> <span class="n">deleted</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create the new router + service account ...</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="p">[</span><span class="n">root</span><span class="nd">@m</span><span class="o">-</span><span class="mi">1</span> <span class="n">quotas</span><span class="p">]</span><span class="c1"># oadm router router --replicas=2 --selector=&#39;region=infra&#39; --service-account=router</span>
+ <span class="n">info</span><span class="p">:</span> <span class="n">password</span> <span class="k">for</span> <span class="n">stats</span> <span class="n">user</span> <span class="n">admin</span> <span class="n">has</span> <span class="n">been</span> <span class="nb">set</span> <span class="n">to</span> <span class="n">mq1rXhOZ4D</span>
+ <span class="o">--&gt;</span> <span class="n">Creating</span> <span class="n">router</span> <span class="n">router</span> <span class="o">...</span>
+     <span class="n">serviceaccount</span> <span class="s2">&quot;router&quot;</span> <span class="n">created</span>
+     <span class="n">warning</span><span class="p">:</span> <span class="n">clusterrolebinding</span> <span class="s2">&quot;router-router-role&quot;</span> <span class="n">already</span> <span class="n">exists</span>
+     <span class="n">deploymentconfig</span> <span class="s2">&quot;router&quot;</span> <span class="n">created</span>
+     <span class="n">service</span> <span class="s2">&quot;router&quot;</span> <span class="n">created</span>
+ <span class="o">--&gt;</span> <span class="n">Success</span>
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/router-restart.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

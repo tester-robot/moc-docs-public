@@ -1,0 +1,249 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Example &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <!-- linky links -->
+[OpenStack API Guide]: https://docs.openstack.org/api/api-ref-guides.html
+## Introduction <p>It's possible to write your application to interact directly with OpenStack's REST APIs.  This requires some comfort with REST but in some cases may be the best way to adapt your particular application to make use of a particular service.</p>
+<p>An introduction to the concept of REST and how to use it is beyond the scope of this tutorial, but we do provide an example below to get started with.</p>
+<p>A good resource is the [OpenStack API Guide].</p>
+<div class="section" id="example">
+<span id="example"></span><h1>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h1>
+<p>Note that the script below includes both Keystone V2 and V3 authentication.  We recommend working with V3 auth for new applicatoins, but include the V2 example to illustrate the differences for those who might be trying to work with an existing V2 application.</p>
+<p>Our current Mitaka production environment supports both APIs (as of this writing, April 2017).</p>
+<p>To run this script you must specify which authentication method to use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ python REST_example.py --v3
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ python REST_example.py --v2
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">keystoneauth1.identity</span> <span class="k">import</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span>
+<span class="kn">from</span> <span class="nn">keystoneauth1</span> <span class="k">import</span> <span class="n">session</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Code block below sets up--v2 and --v3 arguments to this script.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Specify v2 or v3 auth&#39;</span><span class="p">)</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">version</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--v2&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use Keystone auth v2&#39;</span><span class="p">)</span>
+    <span class="n">version</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--v3&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use Keystone auth v3&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># In this example, we assume you sourced the Openstack RC script and</span>
+    <span class="c1"># read these values from the environement. </span>
+    <span class="n">project_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_TENANT_ID&#39;</span><span class="p">)</span>
+    <span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PROJECT_NAME&#39;</span><span class="p">)</span>
+    <span class="n">user_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_USERNAME&#39;</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PASSWORD&#39;</span><span class="p">)</span>
+    <span class="c1"># Note that the environment variable OS_AUTH_URL set in the currrently </span>
+    <span class="c1"># available RC scripts specifies v2.0. Here we split off the version </span>
+    <span class="c1"># so that in this script we can choose v2 or v3.</span>
+    <span class="n">keystone_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_AUTH_URL&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">v2</span><span class="p">:</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Password</span><span class="p">(</span><span class="n">auth_url</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/v2.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keystone_base</span><span class="p">),</span>
+                           <span class="n">tenant_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+                           <span class="n">username</span><span class="o">=</span><span class="n">user_name</span><span class="p">,</span>
+                           <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+        
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">v3</span><span class="p">:</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">v3</span><span class="o">.</span><span class="n">Password</span><span class="p">(</span><span class="n">auth_url</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/v3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keystone_base</span><span class="p">),</span>
+                           <span class="n">project_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+                           <span class="n">project_domain_id</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                           <span class="n">username</span><span class="o">=</span><span class="n">user_name</span><span class="p">,</span>
+                           <span class="n">user_domain_id</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                           <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+    <span class="c1"># Establish an authenticated session</span>
+    <span class="n">sess</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">keystoneauth1.identity</span> <span class="k">import</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span>
+<span class="kn">from</span> <span class="nn">keystoneauth1</span> <span class="k">import</span> <span class="n">session</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Code block below sets up--v2 and --v3 arguments to this script.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Specify v2 or v3 auth&#39;</span><span class="p">)</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">version</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--v2&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use Keystone auth v2&#39;</span><span class="p">)</span>
+    <span class="n">version</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--v3&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use Keystone auth v3&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># In this example, we assume you sourced the Openstack RC script and</span>
+    <span class="c1"># read these values from the environement. </span>
+    <span class="n">project_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_TENANT_ID&#39;</span><span class="p">)</span>
+    <span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PROJECT_NAME&#39;</span><span class="p">)</span>
+    <span class="n">user_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_USERNAME&#39;</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PASSWORD&#39;</span><span class="p">)</span>
+    <span class="c1"># Note that the environment variable OS_AUTH_URL set in the currrently </span>
+    <span class="c1"># available RC scripts specifies v2.0. Here we split off the version </span>
+    <span class="c1"># so that in this script we can choose v2 or v3.</span>
+    <span class="n">keystone_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_AUTH_URL&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">v2</span><span class="p">:</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Password</span><span class="p">(</span><span class="n">auth_url</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/v2.0&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keystone_base</span><span class="p">),</span>
+                           <span class="n">tenant_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+                           <span class="n">username</span><span class="o">=</span><span class="n">user_name</span><span class="p">,</span>
+                           <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+        
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">v3</span><span class="p">:</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">v3</span><span class="o">.</span><span class="n">Password</span><span class="p">(</span><span class="n">auth_url</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/v3&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keystone_base</span><span class="p">),</span>
+                           <span class="n">project_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+                           <span class="n">project_domain_id</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                           <span class="n">username</span><span class="o">=</span><span class="n">user_name</span><span class="p">,</span>
+                           <span class="n">user_domain_id</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+                           <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+    <span class="c1"># Establish an authenticated session</span>
+    <span class="n">sess</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span>
+
+    <span class="c1"># A full list of available public API endpoints is at:</span>
+    <span class="c1">#     Compute --&gt; Access &amp; Security --&gt; API Access</span>
+    <span class="c1"># Some will need to include your project ID, some will not</span>
+    <span class="n">nova_url</span> <span class="o">=</span> <span class="s1">&#39;https://nova.kaizen.massopencloud.org:8774/v2/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">projectt</span>
+<span class="n">_id</span><span class="p">)</span>
+    <span class="n">glance_url</span> <span class="o">=</span> <span class="s1">&#39;https://glance.kaizen.massopencloud.org:9292&#39;</span>
+
+    <span class="c1"># Here we retrieve a list of available images</span>
+    <span class="c1"># Since the glance endpoint does not include a version, we discover </span>
+    <span class="c1"># the current version</span>
+    <span class="c1"># More information about service discovery can be found here:</span>
+    <span class="c1"># https://docs.openstack.org/developer/keystoneauth/using-sessions.html#servv</span>
+<span class="n">ice</span><span class="o">-</span><span class="n">discovery</span>
+    <span class="c1"># Note that the below discovery does not work for </span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">glance_url</span><span class="p">)</span>
+    <span class="n">glance_versions</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">current_glance</span> <span class="o">=</span> <span class="p">(</span><span class="n">version</span> <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">glance_versions</span><span class="p">[</span><span class="s1">&#39;versions&#39;</span><span class="p">]</span>
+                      <span class="k">if</span> <span class="n">version</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;CURRENT&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+    <span class="n">glance_url</span> <span class="o">=</span> <span class="n">current_glance</span><span class="p">[</span><span class="s1">&#39;links&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;href&#39;</span><span class="p">]</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/images&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">glance_url</span><span class="p">))</span>
+    <span class="n">image_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">image_list</span><span class="p">[</span><span class="s1">&#39;images&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span> <span class="n">image</span>
+        <span class="nb">print</span> <span class="s2">&quot;******&quot;</span>
+
+    <span class="c1"># Here we retrieve a list of the instances in your project</span>
+    <span class="c1"># Since the Nova API endpoint already includes a version, we</span>
+    <span class="c1"># can just use it directly</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/servers&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nova_url</span><span class="p">))</span>
+    <span class="n">server_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">server</span> <span class="ow">in</span> <span class="n">server_list</span><span class="p">[</span><span class="s1">&#39;servers&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span> <span class="n">server</span>
+        <span class="nb">print</span> <span class="s2">&quot;******&quot;</span>
+</pre></div>
+</div>
+<p>Download the above script: <a class="reference external" href="tutorial_scripts/REST_example.py">REST_example.py</a></p>
+<hr class="docutils" />
+<div class="section" id="next-python-service-clients">
+<span id="next-python-service-clients"></span><h2>Next: [[Python Service Clients]]<a class="headerlink" href="#next-python-service-clients" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-python-sdk">
+<span id="previous-python-sdk"></span><h3>Previous: [[Python SDK]]<a class="headerlink" href="#previous-python-sdk" title="Permalink to this headline">¶</a></h3>
+<p>[[OpenStack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/REST-API.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

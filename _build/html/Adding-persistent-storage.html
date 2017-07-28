@@ -1,0 +1,149 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<p>Ref:</p>
+<ol class="simple">
+<li>More General <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/persistent_storage/index.html">https://docs.openshift.com/container-platform/3.5/install_config/persistent_storage/index.html</a>
+For setting open stack user/passord/... <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/configuring_openstack.html#install-config-configuring-openstack">https://docs.openshift.com/container-platform/3.5/install_config/configuring_openstack.html#install-config-configuring-openstack</a></li>
+<li>Using Cinder <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/persistent_storage/persistent_storage_cinder.html#install-config-persistent-storage-persistent-storage-cinder">https://docs.openshift.com/container-platform/3.5/install_config/persistent_storage/persistent_storage_cinder.html#install-config-persistent-storage-persistent-storage-cinder</a></li>
+</ol>
+<ol>
+<li><p class="first">Create storageclass (that is set as the default storageclass) for cinder</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">vi</span> <span class="n">cinder</span><span class="o">-</span><span class="n">storageclass</span><span class="o">.</span><span class="n">yaml</span>
+
+ <span class="n">kind</span><span class="p">:</span> <span class="n">StorageClass</span>
+ <span class="n">apiVersion</span><span class="p">:</span> <span class="n">storage</span><span class="o">.</span><span class="n">k8s</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">v1beta1</span>
+ <span class="n">metadata</span><span class="p">:</span>
+   <span class="n">name</span><span class="p">:</span> <span class="n">cinder</span><span class="o">-</span><span class="n">storageclass</span>
+   <span class="n">annotations</span><span class="p">:</span>
+     <span class="n">storageclass</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="ow">is</span><span class="o">-</span><span class="n">default</span><span class="o">-</span><span class="n">class</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span>
+ <span class="n">provisioner</span><span class="p">:</span> <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">cinder</span>
+ <span class="n">parameters</span><span class="p">:</span>
+   <span class="nb">type</span><span class="p">:</span> <span class="n">Ceph</span>
+   <span class="n">availability</span><span class="p">:</span> <span class="n">nova</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">note</span><span class="p">:</span> <span class="n">parameters</span><span class="p">:</span><span class="nb">type</span><span class="p">:</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">match</span> <span class="n">the</span> <span class="nb">type</span> <span class="n">that</span> <span class="ow">is</span> <span class="n">displayed</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">volumes</span> <span class="ow">in</span> <span class="n">horizon</span><span class="o">.</span>
+</pre></div>
+</div>
+<ol>
+<li><p class="first">Create the storageclass from that file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">cinder</span><span class="o">-</span><span class="n">storageclass</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Note: cannot edit via:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">oc</span> <span class="n">edit</span> <span class="n">storageclass</span> <span class="n">cinder</span><span class="o">-</span><span class="n">storageclass</span>
+
+  <span class="n">have</span> <span class="n">to</span> <span class="n">delete</span> <span class="ow">and</span> <span class="n">then</span> <span class="n">reload</span> <span class="k">for</span> <span class="n">changes</span> <span class="n">to</span> <span class="n">take</span> <span class="n">place</span><span class="p">:</span>
+
+    <span class="n">oc</span> <span class="n">delete</span> <span class="n">storageclass</span> <span class="n">cinder</span><span class="o">-</span><span class="n">storageclass</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<ol>
+<li><p class="first">On each node (including the master) - probably not needed.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">systemctl</span> <span class="n">stop</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">node</span>
+ <span class="n">ovs</span><span class="o">-</span><span class="n">ofctl</span> <span class="k">del</span><span class="o">-</span><span class="n">flows</span> <span class="n">br0</span> <span class="o">-</span><span class="n">O</span> <span class="n">OpenFlow13</span>
+ <span class="n">systemctl</span> <span class="n">start</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">node</span>
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Adding-persistent-storage.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

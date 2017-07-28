@@ -1,0 +1,175 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Controller on VM, Compute on PXE booted ramdisk hardware (from now on, these machines will be referred to as the BORG). (VAL+ANDREW) &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="controller-on-vm-compute-on-pxe-booted-ramdisk-hardware-from-now-on-these-machines-will-be-referred-to-as-the-borg-val-andrew">
+<span id="controller-on-vm-compute-on-pxe-booted-ramdisk-hardware-from-now-on-these-machines-will-be-referred-to-as-the-borg-val-andrew"></span><h1>Controller on VM, Compute on PXE booted ramdisk hardware (from now on, these machines will be referred to as the BORG). (VAL+ANDREW)<a class="headerlink" href="#controller-on-vm-compute-on-pxe-booted-ramdisk-hardware-from-now-on-these-machines-will-be-referred-to-as-the-borg-val-andrew" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="did">
+<span id="did"></span><h1>Did<a class="headerlink" href="#did" title="Permalink to this headline">¶</a></h1>
+<p>Created a VM with public and private nic to be the controller node.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo yum install -y http://rdo.fedorapeople.org/openstack/openstack-grizzly/rdo-release-grizzly-3.noarch.rpm
+$ sudo yum install -y openstack-packstack
+</pre></div>
+</div>
+<p>Ran <code class="docutils literal"><span class="pre">packstack</span> <span class="pre">--allinone</span></code>, rebooted, edited the answer file create by <code class="docutils literal"><span class="pre">--allinone</span></code></p>
+<ul class="simple">
+<li>set <code class="docutils literal"><span class="pre">CONFIG_CINDER_INSTALL</span></code> and <code class="docutils literal"><span class="pre">CONFIG_SWIFT_INSTALL</span></code> to <code class="docutils literal"><span class="pre">n</span></code></li>
+<li><code class="docutils literal"><span class="pre">CONFIG_NOVA_COMPUTE_HOSTS=192.168.3.3</span></code> (the ip address of one member of the BORG)</li>
+<li>and, appropriately, <code class="docutils literal"><span class="pre">CONFIG_NOVA_COMPUTE_PRIVIF=eth0</span></code></li>
+<li>we also set <code class="docutils literal"><span class="pre">CONFIG_NOVA_NETWORK_PRIVIF=eth1</span></code> and <code class="docutils literal"><span class="pre">CONFIG_NOVA_NETWORK_PUBIF=eth2</span></code>, although these a nova-network variables.</li>
+<li>we left all quantum configurations as is:<ul>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_SERVER_HOST=128.197.44.248</span></code> The IP addresses of the server on which to install the Quantum server</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_USE_NAMESPACES=y</span></code> Enable network namespaces for Quantum</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_L3_HOSTS=128.197.44.248</span></code> A comma separated list of IP addresses on which to install Quantum L3 agent</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_L3_EXT_BRIDGE=br-ex</span></code> The name of the bridge that the Quantum L3 agent will use for external traffic</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_DHCP_HOSTS=128.197.44.248</span></code> A comma separated list of IP addresses on which to install Quantum DHCP plugin</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_L2_PLUGIN=openvswitch</span></code> The name of the L2 plugin to be used with Quantum</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_METADATA_HOSTS=128.197.44.248</span></code> A comma separated list of IP addresses on which to install Quantum metadata agent</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_LB_TENANT_NETWORK_TYPE=local</span></code> The type of network to allocate for tenant networks</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_LB_VLAN_RANGES=</span></code> A comma separated list of VLAN ranges for the Quantum linuxbridge plugin</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_LB_INTERFACE_MAPPINGS=</span></code> A comma separated list of interface mappings for the Quantum linuxbridge plugin</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_OVS_TENANT_NETWORK_TYPE=local</span></code> Type of network to allocate for tenant networks</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_OVS_VLAN_RANGES=</span></code> A comma separated list of VLAN ranges for the Quantum openvswitch plugin</li>
+<li><code class="docutils literal"><span class="pre">CONFIG_QUANTUM_OVS_BRIDGE_MAPPINGS=</span></code> A comma separated list of bridge mappings for the Quantum openvswitch plugin</li>
+</ul>
+</li>
+</ul>
+<p>When running packstack with the edit answer file, and we ran into!</p>
+</div>
+<div class="section" id="problems">
+<span id="problems"></span><h1>Problems!<a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h1>
+<ol class="simple">
+<li>Horizon did not work immediately after making new project. Continues to have error &quot;unable to retrieve quota information&quot;. This is fixed by logging out and logging back in.</li>
+<li>First notable problem: packstack stalled in state <code class="docutils literal"><span class="pre">Testing</span> <span class="pre">if</span> <span class="pre">puppet</span> <span class="pre">apply</span> <span class="pre">is</span> <span class="pre">finished</span> <span class="pre">:</span> <span class="pre">192.168.3.3_quantum.pp</span></code> for &gt;12 hours.</li>
+<li>after <code class="docutils literal"><span class="pre">crtl-c</span></code>-ing the install, we got the message <em>Kernel package with netns support has been installed on host 192.168.3.89. Please note that with this action you are loosing Red Hat support for this host. Because of the kernel update host mentioned above requires reboot.</em></li>
+</ol>
+<ul class="simple">
+<li>BUT! we cannot reboot the BORG machines</li>
+</ul>
+<ol class="simple">
+<li>the BORG machine wrote <em>Message from syslogd&#64;moc-compute-03 at Jun  6 13:15:28 ...
+kernel:journal commit I/O error</em> to stdout at the time of the second packstack run.</li>
+<li>We noticed the time is wrong on our compute machine</li>
+</ol>
+<ul class="simple">
+<li><strong>FIXED</strong>: reboot with ntp on of the BORG</li>
+<li>this particular solution had not effect on the part (1) or part (2) above.</li>
+</ul>
+</div>
+<div class="section" id="now-trying-packstack-w-out-quantum">
+<span id="now-trying-packstack-w-out-quantum"></span><h1>Now trying, packstack w/out Quantum!<a class="headerlink" href="#now-trying-packstack-w-out-quantum" title="Permalink to this headline">¶</a></h1>
+<p>How to:</p>
+<ol class="simple">
+<li>get repos and yum install openstack-packstack (here: http://openstack.redhat.com/Quickstart)</li>
+<li>run <code class="docutils literal"><span class="pre">packstack</span> <span class="pre">--gen-answer-file=~/answers.cfg</span></code></li>
+<li>edit answer file. See the ans.txt file save in the github (all passwords set to &quot;GEN&quot;)&quot;[[https://github.com/CCI-MOC/moc-public/blob/master/packstack/ans.txt]]</li>
+</ol>
+<div class="section" id="problems">
+<span id="id1"></span><h2>Problems:<a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h2>
+<p>When using a BORG machine, we had to manually start libvirt and messagebus and openstack-nova compute. We then get this error printed to stdout: <em>Message from syslogd&#64;moc-compute-03 at Jun  6 13:15:28 ...kernel:journal commit I/O error</em></p>
+<p>Problem with squash nfs?</p>
+</div>
+</div>
+<div class="section" id="now-trying-physical-machine-for-compute-instead-of-borg">
+<span id="now-trying-physical-machine-for-compute-instead-of-borg"></span><h1>Now trying physical machine for compute, instead of BORG!<a class="headerlink" href="#now-trying-physical-machine-for-compute-instead-of-borg" title="Permalink to this headline">¶</a></h1>
+<p>After restating libvirt, messagebus and openstack-nova-compute, can boot machines!</p>
+<div class="section" id="notes-on-not-using-quantum">
+<span id="notes-on-not-using-quantum"></span><h2>Notes on NOT using quantum:<a class="headerlink" href="#notes-on-not-using-quantum" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Default nova network settings: FlatDHCP server with multi_host=false (the default setting of multi_host -- variable not set in /etc/nova/nova.conf). THIS IS PERFECT, as out BORG nodes only have 1 NIC</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MOCPOC:-Packstack-Openstack-Install-(on-Centos)-experiment:-vms.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

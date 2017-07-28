@@ -1,0 +1,134 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Downloading &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>oc command line tool is used to access the Openshift cluster through the command line. This gives more flexibility as compared to the web interface.</p>
+<div class="section" id="downloading">
+<span id="downloading"></span><h1>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="linux">
+<span id="linux"></span><h1>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h1>
+<p>For Linux 64 bits, download the following link :
+<a class="reference external" href="https://github.com/openshift/origin/releases/download/v1.5.1/openshift-origin-client-tools-v1.5.1-7b451fc-linux-64bit.tar.gz">Linux 64-bit OpenShift oc download</a></p>
+<p><code class="docutils literal"><span class="pre">wget</span> <span class="pre">https://github.com/openshift/origin/releases/download/v1.5.1/openshift-origin-client-tools-v1.5.1-7b451fc-linux-64bit.tar.gz</span></code></p>
+</div>
+<div class="section" id="mac">
+<span id="mac"></span><h1>MAC<a class="headerlink" href="#mac" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/openshift/origin/releases/download/v1.5.1/openshift-origin-client-tools-v1.5.1-7b451fc-mac.zip">MAC OpenShift oc download</a></p>
+</div>
+<div class="section" id="windows">
+<span id="windows"></span><h1>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/openshift/origin/releases/download/v1.5.1/openshift-origin-client-tools-v1.5.1-7b451fc-windows.zip">Windows OpenShift oc Download</a></p>
+<p>Now, extract the downloaded file.
+In linux use tar</p>
+<p><code class="docutils literal"><span class="pre">tar</span> <span class="pre">–xvf</span> <span class="pre">openshift-origin-client-tools-v1.5.1-7b451fc-linux-64bit.tar.gz</span></code></p>
+<p>P.S: to find the latest version, go to <a class="reference external" href="https://github.com/openshift/origin/releases">oc releases</a> and scroll down to the downloads section.</p>
+<p>Now, you might want to change the name of the file to something small. Use the mv command for the same.</p>
+<p><code class="docutils literal"><span class="pre">mv</span> <span class="pre">openshift-origin-client-tools-v1.5.1-7b451fc-linux-64bit</span> <span class="pre">oc-tool</span></code></p>
+<p>If you do ls, you should find the folder oc-tool. Go into the folder using cd</p>
+<p><code class="docutils literal"><span class="pre">cd</span> <span class="pre">oc-tool</span></code></p>
+<p>In this folder, you will find the oc command which will be used for all operarions.</p>
+<p>To avoid typing ./oc every time, store this path in your .bashrc file.</p>
+<p><code class="docutils literal"><span class="pre">export</span> <span class="pre">PATH=&lt;HOME&gt;/oc-tool:$PATH</span></code></p>
+<p>Now to login, do</p>
+<p><code class="docutils literal"><span class="pre">oc</span> <span class="pre">login</span></code></p>
+<p>You will be asked for the url of your openshift cluster.
+Enter the complete url with the port number and hit enter.</p>
+<p><code class="docutils literal"><span class="pre">ubuntu&#64;vm:~/oc-tool$</span> <span class="pre">oc</span> <span class="pre">login</span></code></p>
+<p><code class="docutils literal"><span class="pre">Server</span> <span class="pre">[https://localhost:8443]:</span> <span class="pre">https://128.XX.XX.XX:8443</span></code></p>
+<p>Now enter your username and password.</p>
+<p>After successful, login you will be able to see your projects in your account. To switch between projects use</p>
+<p><code class="docutils literal"><span class="pre">oc</span> <span class="pre">project</span> <span class="pre">&lt;project-name&gt;</span></code></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Installing-the-oc-CLI-tool-of-OpenShift.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

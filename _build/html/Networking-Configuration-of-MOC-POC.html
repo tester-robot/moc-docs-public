@@ -1,0 +1,163 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Overview &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>This page outlines the networking configuration of the MOC POC.</p>
+<div class="section" id="overview">
+<span id="overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The network consists of the following:</p>
+<ul class="simple">
+<li>A VM host called death-star, with 32 GiB of ram, 4 CPU cores, and 6 NICs.<ul>
+<li>Hosts several VMs with important roles in the network, all named moc-*.</li>
+</ul>
+</li>
+<li>One 16-port unmanaged switch</li>
+<li>One 16-port managed switch</li>
+<li>12 inherited Dell Optiplex 760 workstations, with 4 GiB of RAM and 2 NICs each</li>
+</ul>
+<p>The unmanaged switch provides a &quot;public,&quot; (but behind a NAT) network. We treat this as if it were on the public internet; The NAT's purpose is to ensure that we don't cause problems for other users of our BU subnet if we e.g. misconfigure a dhcp server. Machines on this network are in the 192.168.3.0/24 range, and we refer to this as &quot;nat-public&quot;.</p>
+<p>The managed switch is used to isolate &quot;tenants&quot; in the network - each of which consists of a [[head node|Vlan Head Nodes]], and a subset of the dell workstations. It uses vlans for this purpose. port 16 on the managed switch is hooked in to death-star, and configured as trunking. (the relevant nic on death-star is vlan aware, and death-star is responsible for routing vlan traffic to the correct head node.)</p>
+<p>A few machines are connected directly to BU, and have globally routable ip addresses. These are &quot;public&quot; ip addresses.</p>
+</div>
+<div class="section" id="individual-machine-configurations">
+<span id="individual-machine-configurations"></span><h1>Individual machine configurations.<a class="headerlink" href="#individual-machine-configurations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="owned-static-ips">
+<span id="owned-static-ips"></span><h2>Owned static ips<a class="headerlink" href="#owned-static-ips" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Name: moc-compute.bu.edu, Address: 128.197.44.203</li>
+<li>Name: moc-control.bu.edu, Address: 128.197.44.202</li>
+</ul>
+</div>
+<div class="section" id="mocpoc-cluster-ips">
+<span id="mocpoc-cluster-ips"></span><h2>MOCPOC cluster IPs:<a class="headerlink" href="#mocpoc-cluster-ips" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>death-star ([[Death Star VM configuration]])<ul>
+<li>nat-public : 192.168.3.254</li>
+<li>public: 128.197.44.203</li>
+</ul>
+</li>
+<li>VMs on death-star:<ul>
+<li>moc-dhcp<ul>
+<li>nat-public 192.168.3.253</li>
+<li>serves reserved ip addresses to each of the hardware nodes, along with a few virtual machines</li>
+<li>serves the range 192.168.3.64-127 to other machines.</li>
+</ul>
+</li>
+<li>moc-dns<ul>
+<li>nat-public 192.168.3.248</li>
+</ul>
+</li>
+<li>moc-nfs<ul>
+<li>nat-public 192.168.3.252</li>
+</ul>
+</li>
+<li>moc-ntp<ul>
+<li>nat-public 192.168.3.249</li>
+</ul>
+</li>
+<li>moc-gateway<ul>
+<li>nat-public 192.168.3.250</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>All compute nodes:<ul>
+<li>eth0 is connected to the private network and the IP assigned from the moc-dhcp DHCP server.</li>
+<li>moc-dhcp gives private address in range 192.168.3.1-31</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Networking-Configuration-of-MOC-POC.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

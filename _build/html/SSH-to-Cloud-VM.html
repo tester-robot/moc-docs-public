@@ -1,0 +1,189 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Setting a password &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Before trying to access instances from the outside world, you need to make sure you have followed these steps:</p>
+<ul class="simple">
+<li>You followed the instruction in [[Create a Key Pair]] to set up a public ssh key.</li>
+<li>Your public ssh-key was selected (in the Access and Security tab) while <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/Launch-a-VM">launching the instance</a>.</li>
+<li>[[Assign a Floating IP]] to the instance in order to access it from outside world.</li>
+<li>Make sure you have added rules in the [[Security Groups]] to allow ssh to the instance.</li>
+</ul>
+<p>Make note of the floating IP you have associated to your instance.</p>
+<p>[[tutorial_screenshots/kilo/floatingip_is_associated.png]]</p>
+<p>In our example, the IP is 129.10.3.66.</p>
+<p>Default usernames for all the base images are:</p>
+<ul class="simple">
+<li>all Ubuntu images: ubuntu</li>
+<li>all CentOS images: centos</li>
+<li>all RHEL images: cloud-user</li>
+</ul>
+<p>Our example VM was launched with the RHEL7.1 base image, the user we need is 'cloud-user'.</p>
+<p>Open a Terminal window and type:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ ssh cloud-user@129.10.3.66
+</pre></div>
+</div>
+<p>Since you have never connected to this VM before, you will be asked if you are sure you want to connect.  Type <code class="docutils literal"><span class="pre">yes</span></code>.</p>
+<p>[[tutorial_screenshots/kilo/ssh_to_vm.png]]</p>
+<p>Note that if you haven't added your key to ssh-agent, you may need to specify the private key file, like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ ssh -i ~/.ssh/cloud_key.pem cloud-user@129.10.3.66
+</pre></div>
+</div>
+<p>If you have problems with the SSH step, this page lists solutions to some common problems: [[Troubleshooting SSH Login]]</p>
+<hr class="docutils" />
+<div class="section" id="setting-a-password">
+<span id="setting-a-password"></span><h1>Setting a password<a class="headerlink" href="#setting-a-password" title="Permalink to this headline">¶</a></h1>
+<p>When the VMs are launched, a strong, randomly-generated password is created for the default user, and then discarded.  Once you connect to your VM, you will want to set a password in case you ever need to log in via the console in the web dashboard - for example, if your network connections aren't working right.</p>
+<p>Since you are not using it to log in over SSH or to sudo, it doesn't really matter how hard it is to type, and we recommend using a randomly-generated password.  Create a random password like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> [cloud-user@test-vm ~]$ cat /dev/urandom | base64 | dd count=14 bs=1
+ C8a6lipvDcLY6j14+0 records in
+ 14+0 records out
+ 14 bytes transferred in 0.030097 secs (465 bytes/sec)
+</pre></div>
+</div>
+<p>The 'count' parameter controls the number of characters.  The first <count> characters of the output are your randomly generated output, followed immediately by &quot;<count>+0&quot;, so in the above example the password is: <code class="docutils literal"><span class="pre">C8a6lipvDcLY6j</span></code> .</p>
+<p>Set the password for cloud-user using the command <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">passwd</span> <span class="pre">cloud-user</span></code>.  Store the password in a secure place.  Don't send it over email, post it on your wall on a sticky note, etc.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-more-ssh-keys-a-adding-other-people-s-ssh-keys-to-the-instance">
+<span id="a-name-more-ssh-keys-a-adding-other-people-s-ssh-keys-to-the-instance"></span><h1><a name="more-ssh-keys"></a>Adding other people's SSH keys to the instance.<a class="headerlink" href="#a-name-more-ssh-keys-a-adding-other-people-s-ssh-keys-to-the-instance" title="Permalink to this headline">¶</a></h1>
+<p>You were able to log into using your own SSH key.  Right now Openstack only permits one key to be added at launch, so you need to add your teammates keys manually.</p>
+<p>Get your teammates' public keys.  If they used ssh-keygen to create their key, this will be in a file called &lt;key_name&gt;.pub on their machine.  If they created a key via the dashboard, or imported the key created with ssh-keygen, their public key is viewable from the Key Pairs tab.  Click on the key pair name.  The public key starts with 'ssh-rsa' and looks something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ssh</span><span class="o">-</span><span class="n">rsa</span> <span class="n">AAAAB3NzaC1yc2EAAAADAQABAAABAQDL6O5qNZHfgFwf4vnnib2XBub7ZU6khy6z6JQl3XRJg6I6gZ</span><span class="o">+</span><span class="n">Ss6tNjz0Xgax5My0bizORcka</span><span class="o">/</span><span class="n">TJ33S36XZfzUKGsZqyEl</span><span class="o">/</span><span class="n">ax1Xnl3MfE</span><span class="o">/</span><span class="n">rgq415wKljg4</span><span class="o">+</span><span class="n">QvDznF0OFqXjDIgL938N8G4mq</span><span class="o">/</span><span class="n">cKKtRSMdksAvNsAreO0W7GZi24G1giap4yuG4XghAXcYxDnOSzpyP2HgqgjsPdQue919IYvgH8shr</span><span class="o">+</span><span class="n">sPa48uC5sGU5PkTb0Pk</span><span class="o">/</span><span class="n">ef1Y5pLBQZYchyMakQvxjj7hHZaT</span><span class="o">/</span><span class="n">Lw0wIvGpPQay84plkjR2IDNb51tiEy5x163YDtrrP7RM2LJwXm</span><span class="o">+</span><span class="mi">1</span><span class="n">vI8MzYmFRrXiqUyznd</span> <span class="n">test_user</span><span class="nd">@demo</span>
+</pre></div>
+</div>
+<p>Create a file called something like 'teammates.pub' and paste in your team's public keys, one per line.  Hang onto this file to save yourself from having to do all the copy/pasting every time you launch a new vm.</p>
+<p>Copy the file to the vm:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> [you@your-laptop ~]$ scp teammates.pub cloud-user@129.10.3.66:~
+</pre></div>
+</div>
+<p>If the copy works, you will see the output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">testfile</span><span class="o">.</span><span class="n">txt</span>                  <span class="mi">100</span><span class="o">%</span>    <span class="mi">0</span>     <span class="mf">0.0</span><span class="n">KB</span><span class="o">/</span><span class="n">s</span>   <span class="mi">00</span><span class="p">:</span><span class="mi">00</span> 
+</pre></div>
+</div>
+<p>Append the file's contents to authorized_keys:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="p">[</span><span class="n">cloud</span><span class="o">-</span><span class="n">user</span><span class="nd">@test</span><span class="o">-</span><span class="n">vm</span> <span class="o">~</span><span class="p">]</span><span class="c1"># cat testfile &gt;&gt; ~/.ssh/authorized_keys</span>
+</pre></div>
+</div>
+<p>Now your teammates should also be able to log in.</p>
+<p>Make sure to use <code class="docutils literal"><span class="pre">&gt;&gt;</span></code> instead of <code class="docutils literal"><span class="pre">&gt;</span></code> to avoid overwriting your own key.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-more-users-a-adding-users-to-the-instance">
+<span id="a-name-more-users-a-adding-users-to-the-instance"></span><h1><a name="more-users"></a>Adding users to the instance.<a class="headerlink" href="#a-name-more-users-a-adding-users-to-the-instance" title="Permalink to this headline">¶</a></h1>
+<p>You may decide that each teammate should have their own user on the VM instead of everyone logging in to the default user.</p>
+<p>Once you log into the vm, you can create another user like this.  Note that the 'sudo_group' is different for different OS - in CentOS and Red Hat, the group is called 'wheel', while in Ubuntu, the group is called 'sudo'.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ sudo su
+ # useradd -m &lt;username&gt;
+ # passwd &lt;username&gt;
+ # usermod -aG &lt;sudo_group&gt; &lt;username&gt;    &lt;-- skip this step for users who should not have root access
+ # su username
+ $ cd ~
+ $ mkdir .ssh
+ $ chmod 700 .ssh
+ $ cd .ssh
+ $ vi authorized_keys   &lt;------- paste the public key for that user here
+ $ chmod 600 authorized_keys
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="next-volumes">
+<span id="next-volumes"></span><h1>Next: [[Volumes]]<a class="headerlink" href="#next-volumes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="previous-assign-a-floating-ip">
+<span id="previous-assign-a-floating-ip"></span><h2>Previous:  [[Assign a Floating IP]]<a class="headerlink" href="#previous-assign-a-floating-ip" title="Permalink to this headline">¶</a></h2>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/SSH-to-Cloud-VM.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

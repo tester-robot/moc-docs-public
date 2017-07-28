@@ -1,0 +1,228 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Overview &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="overview">
+<span id="overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>We are proposing a new set of use cases for OpenStack and a set of
+changes to enable a multi-landlord cloud model, where multiple service
+providers can cooperate (and compete) to stand up services in a single
+cloud. This wiki page first describes the model and then our plan for a
+end-to-end demo by the Tokyo summit.</p>
+<p>#Motivation and High-level use cases</p>
+<p>All current clouds are stood up by a single company or organization,
+creating a vertically integrated monopoly.  Any competition is between
+entire clouds and is limited by the customer's ability to move their
+data over the connectivity between clouds.  We think an alternative
+model is possible, where different organizations can stand up
+individual services in the same data centers, and the customer (or
+intermediaries acting on their behalf) can pick and choose between
+them.  We call this model of having multiple landlords in a cloud an
+Open Cloud eXchange (<a class="reference external" href="http://www.cs.bu.edu/fac/best/res/papers/ic14.pdf">OCX</a>).</p>
+<p>The OCX model would enable more innovation by technology companies,
+enable cloud research and provide more choice to cloud consumers. We
+are developing this model in a new public cloud, the Massachusetts
+Open Cloud (MOC), that is just being started in the
+<a class="reference external" href="http://www.mghpcc.org">MGHPCC</a> data center shared between Boston
+University, Harvard University, the Massachusetts Institute of
+Technology, Northeastern University, and the University of
+Massachusetts.  Some use cases being explored in the context of the
+MOC illustrate the potential of this model:</p>
+<ul class="simple">
+<li>Harvard and MIT both stand up their own OpenStack cloud for
+students, but provide resources on-demand to the MOC that can be used
+by researchers that collaborate between the universities and by
+external users.</li>
+<li>A storage company stands up a new innovative block storage service
+on a few racks in the MGHPCC, operates it themselves, and makes it
+available to users of the MOC and/or the individual university
+clouds.  The storage company is in total control of price,
+automation, and SLA for the service, and users can choose if they
+want to use the service.</li>
+<li>A company stands up a new compute service with innovative hardware
+(e.g., FPGAs, crypto accellerator) or pricing model.  A customer
+with a two Petabyte disk volume can switch to using that compute
+without having to move the data.</li>
+<li>A research group at Boston University and Northeastern develops a
+highly elastic compute service that can checkpoint 1000s of servers
+in seconds into SSD, and broadcast provision a distributed
+application to allow an interactive medical imaging application that
+wants 1000s of servers for a few seconds.</li>
+<li>A security sensitive life sciences company exploits software from
+the <a class="reference external" href="http://www.bu.edu/hic/research/macs/">MACS</a> project to
+distribute their data across two storage services from non-colluding
+providers.  The data is accessed from a Nova compute service running
+on a trusted compute platform developed collaboratively with
+Intel. Since all services are deployed in the same datacenter, the
+computation is efficient.</li>
+<li>Students in a <a class="reference external" href="https://okrieg.github.io/EC500/index.html">cloud computing course</a>  offered by Northeastern and
+Boston University faculty
+develop and stand up an
+experimental proxy service for open stack services that provides
+users of the MOC a Swift service that combines the inventory of
+multiple underlying Swift services.</li>
+</ul>
+<p>We believe solutions to the problems of the OCX model will improve
+OpenStack generally from a security and reliability
+perspective. Solving the problems of multiple providers/landlords that
+don't trust each other also brings defense in depth for a single
+provider cloud; potentially preventing an exploit of one service from
+compromising an entire cloud.</p>
+<p>We will be doing this work in the context of the newly annouced
+<a class="reference external" href="https://wiki.openstack.org/wiki/Mercador">Mercador</a> project.  The
+Mercador focus was originally on federation of resourcs between
+untrusting single provider clouds.  When the two teams met, we
+realized that the two projects solve orthogonal but complementary
+problems, and we decided by joining forces we can help ensure that the
+(still orthogonal) development efforts don't come up with solutions
+that are incompatible.</p>
+</div>
+<div class="section" id="demo-plan">
+<span id="demo-plan"></span><h1>Demo Plan<a class="headerlink" href="#demo-plan" title="Permalink to this headline">¶</a></h1>
+<p>We plan to have an end-to-end demo by the Tokyo summit. We first outline use cases,
+then design assumptions, then details on each use case</p>
+<div class="section" id="low-level-use-cases">
+<span id="low-level-use-cases"></span><h2>Low-level use cases<a class="headerlink" href="#low-level-use-cases" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>boot image from Openstack B into Openstack A, fleshed out, assuming command line:</li>
+<li>mount volume from BU Openstack to MOC Openstack instance</li>
+<li>mount BU Openstack volume to NU Openstack VM in MOC Openstack project</li>
+<li>in a project deploy one VM on NU, one on BU, have sit on same network</li>
+</ul>
+</div>
+<div class="section" id="design-assumptions-and-notes">
+<span id="design-assumptions-and-notes"></span><h2>Design assumptions and notes<a class="headerlink" href="#design-assumptions-and-notes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>We will refer to an OpenStack instance as a Keystone, since thats the one required service (you might have only storage, or only compute in an OpenStack instance, but you will always have a keystone).</li>
+<li>In current version, assume user always queries all keystones, i.e. we don't keep track of a subset of keystones that he actually using; in the long term we wil want to keep track for each project what keystones.</li>
+<li>Each project has a <strong>home</strong> Keystone</li>
+<li>All other keystones for the project are <strong>foreign</strong> Keystone</li>
+<li>To make below efficient, we will need to cache clients for<ul>
+<li>for each service, you maintain the service client object, reference to keystone client object that controls it.  If it fails, we return back error, and mark it as a object that needs to be re-initialized.  When user gets error, types in passord... library will go through all timed out objects and re-initialize based on new SAML assertion. Probably organize as a hash of keystone clients based on keystone end-point, then keep list per keystone of the service end-points.</li>
+<li>in first version, we won't do this caching</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="deadlines">
+<span id="deadlines"></span><h2>Deadlines<a class="headerlink" href="#deadlines" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Keystone Midcycle is July 15</li>
+<li>Openstack Summit is Oct 27 - Oct 30</li>
+<li>Submission deadline for the summit is July 15</li>
+</ul>
+</div>
+<div class="section" id="planning-and-getting-involved">
+<span id="planning-and-getting-involved"></span><h2>Planning and getting involved<a class="headerlink" href="#planning-and-getting-involved" title="Permalink to this headline">¶</a></h2>
+<p>Planning for this project will happen on this trello board: (https://trello.com/b/BQQFdyLx/os-mix-match-federation).</p>
+<p>To get involved, please send email to (mail:moc-team-list&#64;bu.edu) and/or join the #moc irc channel on freenode.</p>
+<p>###Comparisons to mercador</p>
+<ul class="simple">
+<li>Mercador doesn't want to expose any information for the user - we need to expose project for quota polling</li>
+<li>Mercador want's to just add a virtual region which points to the remote cluster... not enable mix and match. They are trying to avoid <em>all</em> cross region addressing through API.</li>
+</ul>
+</div>
+<div class="section" id="tokyo-poc-library-api">
+<span id="tokyo-poc-library-api"></span><h2>Tokyo POC : Library/API<a class="headerlink" href="#tokyo-poc-library-api" title="Permalink to this headline">¶</a></h2>
+<p>Install two stable/kilo devstacks: call one IdP and the other SP.  Set up K2K between them.  On the IdP, use the 'moc_modified' branch of https://github.com/CCI-MOC/nova and of https://github.com/CCI-MOC/python-novaclient.</p>
+<p>Currently, there are changes in the following areas of the code:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">nova</span><span class="o">/</span><span class="n">volume</span><span class="o">/</span><span class="n">cinder</span><span class="o">.</span><span class="n">py</span>                              <span class="p">(</span><span class="n">cinder</span> <span class="n">client</span> <span class="n">creation</span><span class="p">)</span>
+<span class="n">nova</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">openstack</span><span class="o">/</span><span class="n">compute</span><span class="o">/</span><span class="n">contrib</span><span class="o">/</span><span class="n">volumes</span><span class="o">.</span><span class="n">py</span>      <span class="p">(</span><span class="n">parsing</span> <span class="n">extra</span> <span class="n">API</span> <span class="n">option</span><span class="p">)</span>
+<span class="n">nova</span><span class="o">/</span><span class="n">compute</span><span class="o">/</span><span class="n">rpcapi</span><span class="o">.</span><span class="n">py</span>                             <span class="p">(</span><span class="n">sending</span> <span class="n">information</span> <span class="n">over</span> <span class="n">messagebus</span><span class="p">)</span>
+<span class="n">nova</span><span class="o">/</span><span class="n">compute</span><span class="o">/</span><span class="n">manager</span><span class="o">.</span><span class="n">py</span>                            <span class="p">(</span><span class="n">getting</span> <span class="n">information</span> <span class="kn">from</span> <span class="nn">messagebus</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Mix-and-Match-Federation.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

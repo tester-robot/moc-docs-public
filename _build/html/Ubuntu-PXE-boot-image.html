@@ -1,0 +1,212 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Overview &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Here, we outline the process we used for getting ubuntu 12.04 to PXE boot, with its root filesystem on an nfs share. This article focuses primarily on client setup; a functioning dhcp/tftp/nfs server is assumed. To get started quickly, we used <a class="reference external" href="http://bccd.net">Bccd</a>.</p>
+<div class="section" id="overview">
+<span id="overview"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>We'll assume you have an existing ubuntu workstation to work with. It doesn't have to be 12.04 for this to work; we used 12.10 during development. We'll be doing the following:</p>
+<ol class="simple">
+<li>Install ubuntu 12.04 in a chroot with debootstrap</li>
+<li>Modify the chroot as necessary</li>
+<li>Copy the contents of the chroot to the nfs server</li>
+<li>Copy the kernel image and initrd to the tftp directory</li>
+<li>Configure pxelinux to boot the new kernel and ramdisk, with apropriate parameters.</li>
+</ol>
+</div>
+<div class="section" id="creating-a-chroot-with-debootstrap">
+<span id="creating-a-chroot-with-debootstrap"></span><h1>Creating a chroot with debootstrap<a class="headerlink" href="#creating-a-chroot-with-debootstrap" title="Permalink to this headline">¶</a></h1>
+<p>Make sure debootstrap is installed:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo apt-get install debootstrap
+</pre></div>
+</div>
+<p>We'll be using <code class="docutils literal"><span class="pre">/moc</span></code> as the home of our chroot. Start by creating the directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo mkdir /moc
+</pre></div>
+</div>
+<p>The basic usage of debootstrap is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">debootstrap</span> <span class="o">--</span><span class="n">arch</span> <span class="o">&lt;</span><span class="n">architecture</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">release</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">directory</span><span class="o">&gt;</span> <span class="p">[</span> <span class="o">&lt;</span><span class="n">mirror</span><span class="o">&gt;</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>In our case, we'll run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo debootstrap --arch amd64 precise /moc http://archive.ubuntu.com/ubuntu
+</pre></div>
+</div>
+<p>This should install the base system. from here, we'll need to do some configuration.</p>
+<p>First, we modify <code class="docutils literal"><span class="pre">/etc/fstab</span></code> within the chroot to look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">proc</span>    <span class="o">/</span><span class="n">proc</span>   <span class="n">proc</span>    <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+<span class="n">sys</span>         <span class="o">/</span><span class="n">sys</span>    <span class="n">sysfs</span>   <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+<span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">nfs</span>    <span class="o">/</span>   <span class="n">nfs</span> <span class="n">defaults</span>    <span class="mi">1</span>   <span class="mi">1</span>
+<span class="n">none</span>    <span class="o">/</span><span class="n">tmp</span>    <span class="n">tmpfs</span>       <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+<span class="n">none</span>    <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">run</span>    <span class="n">tmpfs</span>   <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+<span class="n">none</span>    <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lock</span>   <span class="n">tmpfs</span>   <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+<span class="n">none</span>    <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">tmp</span>    <span class="n">tmpfs</span>   <span class="n">defaults</span>    <span class="mi">0</span>   <span class="mi">0</span>
+</pre></div>
+</div>
+<p>Now we need to do a few things from within the chroot. chroot in and mount /proc:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo chroot /moc
+# mount /proc
+</pre></div>
+</div>
+<p>You'll want to set the root password:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># passwd</span>
+</pre></div>
+</div>
+<p>We also need to compile a new kernel; the stock ubuntu kernel is missing a few things, including support for PXE booting and NFS as a root filesystem. Starting from the generic kernel, you'll need to enable the following additional options (each of which should be built into the kernel, not as a module):</p>
+<ul class="simple">
+<li>Networking Options -&gt; Networking Support -&gt; IP: Kernel level autoconfiguration (and the subordinate options (bootp, rarp, dhcp))</li>
+<li>File Systems -&gt; Network File Systems -&gt; NFS Client Support<ul>
+<li>It probably makes sense to enable both version 3 and 4.</li>
+<li>Also want &quot;Root file system on NFS&quot;<ul>
+<li>Note that NFS Client Support must be built-in (not a module) for the root fs option to appear.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>TODO: document making a debian package out of this</p>
+<p>You'll need to edit /etc/initramfs-tools/initramfs.conf. in particular, ensure that you have</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">MODULES</span><span class="o">=</span><span class="n">netboot</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">BOOT</span><span class="o">=</span><span class="n">nfs</span>
+</pre></div>
+</div>
+<p>Then, regenerate the initrd:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkinitramfs</span> <span class="o">-</span><span class="n">o</span> <span class="n">initrd</span><span class="o">.</span><span class="n">img</span> <span class="o">&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal"><span class="pre">&lt;kernel-name&gt;</span></code> is appropriate for the kernel you just built (should match the name of a subdirectory of <code class="docutils literal"><span class="pre">/lib/modules</span></code></p>
+<p>Now, unmount /proc, tar up the chroot, and copy it to the nfs server. make sure the server's /etc/exports has a line such as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">chroot</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">3.0</span><span class="o">/</span><span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span><span class="p">(</span><span class="n">rw</span><span class="p">,</span><span class="n">fsid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">no_subtree_check</span><span class="p">,</span><span class="n">sync</span><span class="p">,</span><span class="n">no_root_sqaush</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, edit <code class="docutils literal"><span class="pre">${tftpdir}/pxelinux.cfg/default</span></code> where <code class="docutils literal"><span class="pre">${tftpdir}</span></code> is the root of your tftp server (in the case of bccd, this is <code class="docutils literal"><span class="pre">/srv/tftp</span></code>.) It should look as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">default</span> <span class="n">ubuntu</span>
+<span class="n">label</span> <span class="n">ubuntu</span>
+    <span class="n">kernel</span> <span class="n">vmlinuz</span>
+    <span class="n">append</span> <span class="n">ETHERNET</span><span class="o">=</span><span class="n">eth0</span> <span class="n">initrd</span><span class="o">=</span><span class="n">initrd</span><span class="o">.</span><span class="n">img</span> <span class="n">root</span><span class="o">=/</span><span class="n">dev</span><span class="o">/</span><span class="n">nfs</span> <span class="n">nfsroot</span><span class="o">=&lt;</span><span class="n">nfs</span><span class="o">-</span><span class="n">ip</span><span class="o">-</span><span class="n">addr</span><span class="o">&gt;</span><span class="p">:</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">chroot</span> <span class="n">ip</span><span class="o">=</span><span class="n">dhcp</span> <span class="n">rw</span>
+</pre></div>
+</div>
+<p>Also copy your kernel image to <code class="docutils literal"><span class="pre">${tftpdir}/vmlinuz</span></code> and your new initrd to <code class="docutils literal"><span class="pre">${tftpdir}/initrd.img</span></code>.</p>
+<p>From here, you should be able to power on an appropriately-networked machine and have it boot ubuntu.</p>
+</div>
+<div class="section" id="aufs-root">
+<span id="aufs-root"></span><h1>Aufs Root<a class="headerlink" href="#aufs-root" title="Permalink to this headline">¶</a></h1>
+<p>This section is derived from: <a class="reference external" href="http://debianaddict.com/2012/06/19/diskless-debian-linux-booting-via-dhcppxenfstftp/">http://debianaddict.com/2012/06/19/diskless-debian-linux-booting-via-dhcppxenfstftp/</a>. The steps we actually need (which aren't already taken care of) are:</p>
+<p>aufs module:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="n">aufs</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">srv</span><span class="o">/</span><span class="n">nfsroot</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">initramfs</span><span class="o">-</span><span class="n">tools</span><span class="o">/</span><span class="n">modules</span>
+</pre></div>
+</div>
+<p>Create the file /srv/nfsroot/etc/initramfs-tools/scripts/init-bottom/aufs give it executable permissions and fill it with the following</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>modprobe aufs
+mkdir /ro /rw /aufs
+mount -t tmpfs tmpfs /rw -o noatime,mode=0755
+mount --move $rootmnt /ro
+mount -t aufs aufs /aufs -o noatime,dirs=/rw:/ro=ro
+mkdir -p /aufs/rw /aufs/ro
+mount --move /ro /aufs/ro
+mount --move /rw /aufs/rw
+mount --move /aufs /root
+exit 0
+</pre></div>
+</div>
+<p>Then, regenerate the initrd:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mkinitramfs</span> <span class="o">-</span><span class="n">o</span> <span class="n">initrd</span><span class="o">.</span><span class="n">img</span> <span class="o">&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>and copy it to <code class="docutils literal"><span class="pre">${tftpdir}</span></code>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Ubuntu-PXE-boot-image.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,209 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Intro &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <!-- linky links -->
+[Python SDK page at PyPi]: https://pypi.python.org/pypi/openstacksdk
+[Openstack End User Guide]: http://docs.openstack.org/user-guide/
+[1]: http://docs.openstack.org/user-guide/common/cli-install-openstack-command-line-clients.html
+[known SDKs]: https://wiki.openstack.org/wiki/SDKs<div class="section" id="intro">
+<span id="intro"></span><h1>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h1>
+<p>From the [Python SDK page at Pypi]:</p>
+<blockquote>
+<div>The python-openstacksdk is a collection of libraries for building applications to work with OpenStack clouds. The project aims to provide a consistent and complete set of interactions with OpenStack’s many services, along with complete documentation, examples, and tools.&quot;</div></blockquote>
+<p>If you need to plug OpenStack into existing scripts using another language, there are a variety of other SDKs at various levels of active development.  A list of [known SDKs] is maintained on the official OpenStack wiki.</p>
+</div>
+<div class="section" id="hello-world-script">
+<span id="hello-world-script"></span><h1>Hello World script<a class="headerlink" href="#hello-world-script" title="Permalink to this headline">¶</a></h1>
+<p>Let's jump right in with an example.  Here's a script equivalent of the <code class="docutils literal"><span class="pre">openstack</span> <span class="pre">image</span> <span class="pre">list</span></code> command we performed via the CLI on the <a class="reference external" href="#API-Access.md">previous page</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">openstack</span> <span class="k">import</span> <span class="n">connection</span>
+<span class="kn">from</span> <span class="nn">openstack</span> <span class="k">import</span> <span class="n">profile</span>
+
+
+<span class="c1"># There are several ways to set these variables in Python.  In this example, we</span>
+<span class="c1"># assume you sourced the Openstack RC script and get the correct values from the</span>
+<span class="c1"># environement. You could also read them into the script from a config file.</span>
+<span class="n">auth_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_AUTH_URL&#39;</span><span class="p">)</span>
+<span class="n">project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PROJECT_NAME&#39;</span><span class="p">)</span>
+<span class="n">username</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_USERNAME&#39;</span><span class="p">)</span>
+<span class="n">password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_PASSWORD&#39;</span><span class="p">)</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OS_REGION_NAME&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_connection</span><span class="p">(</span><span class="n">auth_url</span><span class="p">,</span><span class="n">region</span><span class="p">,</span><span class="n">project_name</span><span class="p">,</span><span class="n">username</span><span class="p">,</span><span class="n">password</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Connect and authenticate to OpenStack</span>
+<span class="sd"> </span>
+<span class="sd">    This function came straight from the Openstack docs:</span>
+<span class="sd">    http://developer.openstack.org/sdks/python/openstacksdk/users/guides/connect.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prof</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+    <span class="n">prof</span><span class="o">.</span><span class="n">set_region</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">connection</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span>
+        <span class="n">profile</span><span class="o">=</span><span class="n">prof</span><span class="p">,</span>
+        <span class="n">user_agent</span><span class="o">=</span><span class="s1">&#39;examples&#39;</span><span class="p">,</span>
+        <span class="n">auth_url</span><span class="o">=</span><span class="n">auth_url</span><span class="p">,</span>
+        <span class="n">project_name</span><span class="o">=</span><span class="n">project_name</span><span class="p">,</span>
+        <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">create_connection</span><span class="p">(</span><span class="n">auth_url</span><span class="p">,</span><span class="n">region</span><span class="p">,</span><span class="n">project_name</span><span class="p">,</span><span class="n">username</span><span class="p">,</span><span class="n">password</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">images</span><span class="p">():</span>
+     <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">{ID}</span><span class="se">\t</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ID</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Wait, you're thinking, that looks like a lot more work than <code class="docutils literal"><span class="pre">openstack</span> <span class="pre">image</span> <span class="pre">list</span></code>!  But, look at how much of that work is just the openstack authentication step.  You only have to do that part once per script.</p>
+<p>Notice that we access the image name and id.  There's actually a lot more information we can get from the output of conn.compute.images().  To see an example, add this to the bottom of your script:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">image1</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">images</span><span class="p">()</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">image1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Pro Tip: if you'd like the output of the above to be a bit more readable, you can do this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+
+<span class="n">img_dict</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">img_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Most OpenStack resource objects have this <code class="docutils literal"><span class="pre">to_dict()</span></code> function, since they inherit it from the base Resource class.</p>
+<p>Here's an <a class="reference external" href="tutorial_scripts/list-images.py">example script</a> that makes use of the code above.  You need to make sure your environment variables are set in order for it to work.</p>
+</div>
+<div class="section" id="launch-an-instance">
+<span id="launch-an-instance"></span><h1>Launch an instance<a class="headerlink" href="#launch-an-instance" title="Permalink to this headline">¶</a></h1>
+<p>OK, enough looking at images, let's get some work done and launch an instance.</p>
+<p>Make a copy of your list-images script called something like launch.py.  Remove the for loop that lists images (this is the last two lines).</p>
+<p>Define some instance parameters like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTANCE_NAME</span><span class="o">=</span><span class="s1">&#39;Python Test Image&#39;</span>
+<span class="n">IMAGE</span><span class="o">=</span><span class="s1">&#39;Centos 7&#39;</span>
+<span class="n">FLAVOR</span><span class="o">=</span><span class="s1">&#39;m1.small&#39;</span>
+<span class="n">NETWORK</span><span class="o">=</span><span class="s1">&#39;your-network-here&#39;</span>
+<span class="n">KEYPAIR</span><span class="o">=</span><span class="s1">&#39;your-keypair-here&#39;</span>
+</pre></div>
+</div>
+<p>Fill in appropriate values for these parameters based on what's available in the OpenStack installation, and the image configuration you want.  You can specify image, flavor, network, and keypair by either name or ID value, but make sure it's a string. If you are a member of multiple projects, make sure to provide a network and keypair that are in the project specified in your openstackrc file.</p>
+<p>Next, use these values to prepare some resources:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Get resources</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">find_image</span><span class="p">(</span><span class="n">IMAGE</span><span class="p">)</span>
+<span class="n">flavor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">find_flavor</span><span class="p">(</span><span class="n">FLAVOR</span><span class="p">)</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">find_network</span><span class="p">(</span><span class="n">NETWORK_NAME</span><span class="p">)</span>
+<span class="n">keypair</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">find_keypair</span><span class="p">(</span><span class="n">KEYPAIR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, create your instance:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">test_instance</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;testPython2&#39;</span><span class="p">,</span> 
+    <span class="n">image_id</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> 
+    <span class="n">flavor_id</span><span class="o">=</span><span class="n">flavor</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> 
+    <span class="n">networks</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="n">network</span><span class="o">.</span><span class="n">id</span><span class="p">}],</span> 
+    <span class="n">key_name</span><span class="o">=</span><span class="n">keypair</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">test_instance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run your script:
+$ python launch.py</p>
+<p>It should print the attributes of your server, and you should see your new instance appear in the Instances list in the Horizon GUI.</p>
+<p>An <a class="reference external" href="tutorial_scripts/sdk_launch.py">example script</a> is available for download - make sure to fill in the appropriate image, flavor, keypair, and network names.</p>
+<hr class="docutils" />
+<div class="section" id="next-rest-api">
+<span id="next-rest-api"></span><h2>Next: [[REST API]]<a class="headerlink" href="#next-rest-api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-openstack-cli">
+<span id="previous-openstack-cli"></span><h3>Previous: [[OpenStack CLI]]<a class="headerlink" href="#previous-openstack-cli" title="Permalink to this headline">¶</a></h3>
+<p>[[OpenStack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Python-SDK.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

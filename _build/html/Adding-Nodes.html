@@ -1,0 +1,149 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/Adding-a-Node">https://github.com/CCI-MOC/moc-public/wiki/Adding-a-Node</a></p>
+<p>Reference: <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/adding_hosts_to_existing_cluster.html#adding-nodes-advanced">https://docs.openshift.com/container-platform/3.5/install_config/adding_hosts_to_existing_cluster.html#adding-nodes-advanced</a></p>
+<p>Adding nodes:</p>
+<p>(Advanced install method)</p>
+<p>Reference: <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/adding_hosts_to_existing_cluster.html#adding-nodes-advanced">https://docs.openshift.com/container-platform/3.5/install_config/adding_hosts_to_existing_cluster.html#adding-nodes-advanced</a></p>
+<p>To add new nodes:</p>
+<p>On the new Node:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  <span class="n">follow</span> <span class="n">steps</span> <span class="mi">0</span><span class="o">-</span><span class="mi">13</span> <span class="n">here</span> <span class="o">&lt;</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">CCI</span><span class="o">-</span><span class="n">MOC</span><span class="o">/</span><span class="n">moc</span><span class="o">-</span><span class="n">public</span><span class="o">/</span><span class="n">wiki</span><span class="o">/</span><span class="n">OpenShift</span><span class="o">-</span><span class="n">Service</span><span class="o">-</span><span class="n">Setup</span><span class="o">-</span><span class="n">on</span><span class="o">-</span><span class="n">Engage1</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Master:</p>
+<ol>
+<li><p class="first">This will update all of the ansible playbooks:</p>
+<p>yum update atomic-openshift-utils</p>
+</li>
+<li><p class="first">Edit /etc/ansible/hosts
+A) add 'new_nodes' to the [OSEv3:children]
+B) Add a new section called [new_nodes] to the
+C) Add the new nodes under the [new_nodes] section</p>
+<p>File should look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>   <span class="p">[</span><span class="n">OSEv3</span><span class="p">:</span><span class="n">children</span><span class="p">]</span>
+   <span class="n">masters</span>
+   <span class="n">nodes</span>
+   <span class="n">new_nodes</span>
+   
+   <span class="p">[</span><span class="n">masters</span><span class="p">]</span>
+   <span class="n">master</span><span class="o">-</span><span class="mi">001</span>
+   
+   <span class="p">[</span><span class="n">nodes</span><span class="p">]</span>
+   <span class="n">master</span><span class="o">-</span><span class="mi">001</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span> <span class="nb">open</span> <span class="n">shift_schedulable</span><span class="o">=</span><span class="n">false</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">001</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">002</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">003</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;infra&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">004</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+
+   <span class="p">[</span><span class="n">new_nodes</span><span class="p">]</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">005</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">006</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">007</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+   <span class="n">node</span><span class="o">-</span><span class="mi">008</span> <span class="n">openshift_node_lables</span><span class="o">=</span><span class="s2">&quot;{&#39;region&#39;:&#39;default&#39;, &#39;zone&#39;:&#39;default&#39;}&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">for each of the nodes, ensure that the node network plugin matches the master network plugins:</p>
+<p>vi /etc/origin/master/master-config.yaml
+vi /etc/origin/node/node-config.yaml</p>
+<p>For the MOC, we are running the multitentant plugin, so everything should match
+networkConfig:networkPluginName: &quot;rehat/openshift-ovs-multitenant&quot;</p>
+</li>
+<li><p class="first">run the following sensible playbook:</p>
+<p>ansible-playbook [-i /path/to/hostsFile] /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml</p>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Adding-Nodes.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

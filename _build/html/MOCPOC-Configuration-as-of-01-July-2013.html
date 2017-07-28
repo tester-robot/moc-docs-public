@@ -1,0 +1,108 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>We now have two switches: an unmanaged &quot;public&quot; switch, and a fancy managed &quot;management&quot; switch.  The unmanaged &quot;public&quot; switch can reach the internet through moc-gateway on death-star.  The onboard ethernet of each Optiplex is on the management network, and their 5 dollar PCI ethernet cards are on the public network.</p>
+<p>Our cluster is partitioned into four sub-clusters, each comprising three nodes.  Each is on a separate VLAN on the management network.  We have a four-way KVM switch, attached to the lowest-numbered node in each subcluster.  The subclusters are as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="n">nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>   <span class="n">vlan</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>  <span class="n">kvm</span><span class="o">=</span><span class="mi">1</span><span class="p">},</span> 
+ <span class="p">{</span><span class="n">nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>   <span class="n">vlan</span><span class="o">=</span><span class="mi">102</span><span class="p">,</span>  <span class="n">kvm</span><span class="o">=</span><span class="mi">2</span><span class="p">},</span>
+ <span class="p">{</span><span class="n">nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span>  <span class="n">vlan</span><span class="o">=</span><span class="mi">107</span><span class="p">,</span>  <span class="n">kvm</span><span class="o">=</span><span class="mi">3</span><span class="p">},</span>
+ <span class="p">{</span><span class="n">nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="n">vlan</span><span class="o">=</span><span class="mi">108</span><span class="p">,</span>  <span class="n">kvm</span><span class="o">=</span><span class="mi">4</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>death-star is on all four of these VLANs.  It is not set up to PXE boot anything on them, leaving you free to set up your own PXE server on a subcluster (e.g. with Fuel).  Note that PXE booting happens only on the management network.</p>
+<p>death-star can reach the management interface of the managed switch at 192.168.0.1 .  This address only works on ports 13-16 of the managed switch.</p>
+<p>death-star can reach the Intel management extensions of the Optiplexes (Optiplices?) at 10.0.0.1 through 10.0.0.12 .  It has a specific route in its routing table for each of these IP addresses.</p>
+<p>Again, the public network is NATted behind the moc-gateway VM on death-star.  If you DHCP on that network, you will get an address in 192.168.3.0/24, corresponding directly to the machine number.</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MOCPOC-Configuration-as-of-01-July-2013.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

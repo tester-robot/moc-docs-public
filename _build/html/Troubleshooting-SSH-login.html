@@ -1,0 +1,265 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>This page is deprecated. Please visit this page instead. &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="this-page-is-deprecated-please-visit-this-page-instead">
+<span id="this-page-is-deprecated-please-visit-this-page-instead"></span><h1>This page is deprecated. Please visit <a class="reference external" href="https://info.massopencloud.org/blog/wiki/kaizenfaqs/">this page</a> instead.<a class="headerlink" href="#this-page-is-deprecated-please-visit-this-page-instead" title="Permalink to this headline">¶</a></h1>
+<p>So you're pretty sure you have set everything up correctly, but you keep getting an error message or a timeout when you try to log in via ssh.</p>
+<p>Here are some solutions to common issues our users have:</p>
+<ul class="simple">
+<li>&quot;Permission Denied&quot; error<ul>
+<li><a class="reference external" href="#user">Are you using the right user name?</a></li>
+<li><a class="reference external" href="#absentkey">your key is not on the remote host</a></li>
+<li><a class="reference external" href="#permissions">file permissions are not correct on the remote host</a></li>
+<li><a class="reference external" href="#sshagent">ssh-agent is not running, or your key is not added to it</a></li>
+</ul>
+</li>
+<li>SSH times out<ul>
+<li>[ssh is not enabled on the VM security group] (#sshenable)</li>
+<li>[the VM is not booted] (#notbooted)</li>
+</ul>
+</li>
+<li>Other errors<ul>
+<li><a class="reference external" href="#hostfail">REMOTE HOST IDENTIFICATION HAS CHANGED / Host key verification failed</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="permission-denied-errors">
+<span id="permission-denied-errors"></span><h1>&quot;Permission Denied&quot; errors<a class="headerlink" href="#permission-denied-errors" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-name-user-a-are-you-using-the-right-user-name">
+<span id="a-name-user-a-are-you-using-the-right-user-name"></span><h2><a name="user"></a>Are you using the right user name?<a class="headerlink" href="#a-name-user-a-are-you-using-the-right-user-name" title="Permalink to this headline">¶</a></h2>
+<p>The default usernames on each base image correspond to the operating system:</p>
+<ul class="simple">
+<li>centos base images have the user 'centos'</li>
+<li>ubuntu base images have the user 'ubuntu'</li>
+<li>red hat base images have the user 'cloud-user'</li>
+</ul>
+<p>If you fail to specify the user in the ssh command, it will try to log you in using whatever username you are logged in as on your local machine.  Specify the user:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ ssh -A ubuntu@your_vm&#39;s_IP
+</pre></div>
+</div>
+<p>or
+$ ssh -A -l ubuntu your_vm's_IP</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-absentkey-a-key-not-on-remote-host">
+<span id="a-name-absentkey-a-key-not-on-remote-host"></span><h2><a name="absentkey"></a>Key not on remote host<a class="headerlink" href="#a-name-absentkey-a-key-not-on-remote-host" title="Permalink to this headline">¶</a></h2>
+<p>Did you just launch a VM, without selecting your key in the 'Access and Security' tab?  Unless you used a teammate's key and they can help you out, you will have to terminate that VM and start again, making sure to add your key this time.</p>
+<p>If a VM was spawned using your teammate's key, you can have them add your public key to .ssh/authorized_keys on the VM before you will be able to log in.  Give them a file containing your public key (this is 'cloud_key.pub' in the example) and have them perform the following steps:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ scp cloud_key.pub user@your_vm&#39;s_IP
+ $ ssh user@your_vm&#39;s_IP
+ $ cat cloud_key.pub &gt;&gt; ~/.ssh/authorized_keys
+</pre></div>
+</div>
+<p>(Make sure to use <code class="docutils literal"><span class="pre">&gt;&gt;</span></code> and not <code class="docutils literal"><span class="pre">&gt;</span></code> or else you will overwrite the other key instead of just appending yours).</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-permissions-a-ssh-file-permissions">
+<span id="a-name-permissions-a-ssh-file-permissions"></span><h2><a name="permissions"></a>SSH File Permissions<a class="headerlink" href="#a-name-permissions-a-ssh-file-permissions" title="Permalink to this headline">¶</a></h2>
+<p>OpenStack sets the permissions automatically when it launches a new VM, so if you are trying to log into a newly spawned VM, this isn't the problem.  However, if people have been editing .ssh/authorized keys, they might have accidentally changed something.</p>
+<p>You need to make sure that the permissions on .ssh are 700, which looks like <code class="docutils literal"><span class="pre">drwx------</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> [user@myvm ~]$ ls -al | grep .ssh   
+ drwx------   16 user  user        544 Feb 12 11:38 .ssh
+</pre></div>
+</div>
+<p>and .ssh/authorized keys should be 600, which looks like <code class="docutils literal"><span class="pre">-rw-------</span></code></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> [user@myvm ~]$ ls -al .ssh/
+ -rw------- 1 user user 2.2K Feb  9 15:13 authorized_keys
+</pre></div>
+</div>
+<p>Also make sure the owner of the file is the user you are trying to log in as, not root or some other user.</p>
+<p>If you have root access to the VM, for example via the web console login, you can fix the file permissions using the <code class="docutils literal"><span class="pre">chmod</span></code> and <code class="docutils literal"><span class="pre">chown</span></code> commands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="c1"># chmod 700 /home/&lt;username&gt;/.ssh</span>
+ <span class="c1"># chmod 600 /home/&lt;username&gt;/.ssh/authorized_keys</span>
+ <span class="c1"># chown &lt;username&gt;:&lt;groupname&gt; /home/&lt;username&gt;/.ssh/</span>
+ <span class="c1"># chown &lt;username&gt;:&lt;groupname&gt; /home/&lt;username&gt;/.ssh/authorized_keys</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-sshagent-a-troubleshooting-ssh-agent">
+<span id="a-name-sshagent-a-troubleshooting-ssh-agent"></span><h2><a name="sshagent"></a>Troubleshooting ssh-agent<a class="headerlink" href="#a-name-sshagent-a-troubleshooting-ssh-agent" title="Permalink to this headline">¶</a></h2>
+<p>If you have trouble with adding the key to your agent and forwarding it, it may be that ssh-agent is not running, or your key is not added correctly.</p>
+<p>Check if it is running:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ ps -aux | grep ssh-agent
+</pre></div>
+</div>
+<p>If its running already, the output will look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  501   943     1   0  9:34PM ??         0:01.26 /usr/bin/ssh-agent -l
+</pre></div>
+</div>
+<div class="section" id="starting-ssh-agent">
+<span id="starting-ssh-agent"></span><h3>Starting ssh-agent<a class="headerlink" href="#starting-ssh-agent" title="Permalink to this headline">¶</a></h3>
+<p>If ssh-agent is not running, you can start it like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ ssh-agent &gt; agent_variables.tmp
+  $ source agent_variables.tmp      #You will see an output from this step like &quot;Agent pid &lt;some number&gt;&quot;
+  $ rm agent_variables.tmp
+</pre></div>
+</div>
+<p>What you are doing these steps is starting the agent and importing some necessary environmental variables to use with it.  If you had just typed 'ssh-agent' without directing the output to a file, you would see something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  <span class="n">SSH_AUTH_SOCK</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">ssh</span><span class="o">-</span><span class="n">N2O3IxWPoczq</span><span class="o">/</span><span class="n">agent</span><span class="o">.</span><span class="mi">4328</span><span class="p">;</span> <span class="n">export</span> <span class="n">SSH_AUTH_SOCK</span><span class="p">;</span>
+  <span class="n">SSH_AGENT_PID</span><span class="o">=</span><span class="mi">4329</span><span class="p">;</span> <span class="n">export</span> <span class="n">SSH_AGENT_PID</span><span class="p">;</span>
+  <span class="n">echo</span> <span class="n">Agent</span> <span class="n">pid</span> <span class="mi">4329</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>SSH_AUTH_SOCK and SSH_AGENT_PID are the variables you need to add to your environment to use the agent.  You could copy and past these two lines to the command line to do that.</p>
+</div>
+<div class="section" id="adding-your-key">
+<span id="adding-your-key"></span><h3>Adding your key<a class="headerlink" href="#adding-your-key" title="Permalink to this headline">¶</a></h3>
+<p>After starting ssh-agent, you will need to add your key:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ ssh-add ~/.ssh/&lt;private_key_filename&gt;
+</pre></div>
+</div>
+<p>If your key has a default name like id_rsa, it is usually added automatically when the agent starts, but if you gave it a different name you will have to add it again every time the agent restarts.  You can always check if your key is added like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> $ ssh-add -l
+ 4096 SHA256:CBC6QYABDmr8vG5EQE+n7vvPIM5USVv1iTWgM9/ZMJ4 .ssh/cloud_key (RSA)
+</pre></div>
+</div>
+<p>Above, we see that cloud_key is added.</p>
+</div>
+<div class="section" id="checking-your-agent-forwarding">
+<span id="checking-your-agent-forwarding"></span><h3>Checking your agent forwarding<a class="headerlink" href="#checking-your-agent-forwarding" title="Permalink to this headline">¶</a></h3>
+<p>If after connecting to the first VM, you find that your key doesn't seem to be logging you into another VM from there, you can check that your agent is forwarded by typing:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  $ echo SSH_AUTH_SOCK
+</pre></div>
+</div>
+<p>from the first VM.  The output should look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">ssh</span><span class="o">-</span><span class="n">N2O3IxWPoczq</span><span class="o">/</span><span class="n">agent</span><span class="o">.</span><span class="mi">4328</span>
+</pre></div>
+</div>
+<p>If it is blank, it means your key is not forwarded.  Did forget to type -A?</p>
+<p>If the agent is forwarded, but your key still doesn't work, use the instructions above to check that the correct key is added to the agent.</p>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="ssh-times-out">
+<span id="ssh-times-out"></span><h1>SSH times out<a class="headerlink" href="#ssh-times-out" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-name-sshenable-a-did-you-open-the-ssh-port-on-the-vm">
+<span id="a-name-sshenable-a-did-you-open-the-ssh-port-on-the-vm"></span><h2><a name="sshenable"></a>Did you open the SSH port on the VM?<a class="headerlink" href="#a-name-sshenable-a-did-you-open-the-ssh-port-on-the-vm" title="Permalink to this headline">¶</a></h2>
+<p>Did you create a security group with SSH enabled?  Did you remember to select this security group when you launched this VM?</p>
+<p>You can check the rules applied to a specific VM by going to Compute--&gt;Instances and clicking the instance name.  Scroll down to Security Groups and check for your SSH security group, and check that this line appears:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ALLOW</span> <span class="n">IPv4</span> <span class="mi">22</span><span class="o">/</span><span class="n">tcp</span> <span class="kn">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">0</span>
+</pre></div>
+</div>
+<p>Instructions on creating a security group are here: [[Security Groups]]</p>
+<p>You can add a security group to your VM after launch.  Go to Project--&gt;Compute--&gt;Instances and click the dropdown menu under the 'Actions' column next to your VM.  Choose 'Edit Security Groups'.  In the popup that appears, find the security group in the list on the left and click the <code class="docutils literal"><span class="pre">+</span></code> button next to it.  This will move it to the list on the right.  Once you have the right group(s) added, click Save.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="a-name-notbooted-a-vm-may-not-be-booted">
+<span id="a-name-notbooted-a-vm-may-not-be-booted"></span><h2><a name="notbooted"></a>VM may not be booted<a class="headerlink" href="#a-name-notbooted-a-vm-may-not-be-booted" title="Permalink to this headline">¶</a></h2>
+<p>Go to Compute--&gt;Instances and check that your VM is in the Running state.  If it is not, boot it and try again.  If it is running, but SSH still times out, click the dropdown next to the instance and choose Console.  Click the link to show only the console.  You will get an error screen, but refresh the page and you should see a console screen.</p>
+<p>Is the login prompt showing? Are there any error messages on the console screen?  Try rebooting your VM and see if that fixes the problem.  If the VM is not booting properly, you need to fix that problem first before SSH will work.  One common reason VMs do not boot is if you chose a flavor that is too small for the OS image you chose - the CentOS, Ubuntu, and RHEL images should use m1.small or larger.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="other-errors">
+<span id="other-errors"></span><h1>Other errors<a class="headerlink" href="#other-errors" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-name-hostfail-a-host-verification-fails">
+<span id="a-name-hostfail-a-host-verification-fails"></span><h2><a name="hostfail"></a>Host Verification Fails<a class="headerlink" href="#a-name-hostfail-a-host-verification-fails" title="Permalink to this headline">¶</a></h2>
+<p>Your project may use the same floating IP for different VMs.  It is possible that moving the IP from one VM to another will cause you to get the following error message:</p>
+<p>[[tutorial_screenshots/kilo/host_fail.png]]</p>
+<p>This happens because your computer records an identification key each time it connects to a new host.  Remember this prompt?</p>
+<p>[[tutorial_screenshots/kilo/ssh_to_vm.png]]</p>
+<p>Your computer recorded a key from the first VM and associated it with the IP address.  Since it received a different key this time, it refuses to connect. If this happened unexpectedly, we might be worried that our VM was compromised in some way.  But in this case, we know we just changed which VM the IP address is pointing to, so it's OK.  We just need to remove the old host key.</p>
+<p>Open the file <code class="docutils literal"><span class="pre">~/.ssh/known_hosts</span></code> in your favorite text editor.  Find the line starting with the IP address of your VM.  It should look something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>  <span class="mf">129.10</span><span class="o">.</span><span class="mf">3.66</span> <span class="n">ecdsa</span><span class="o">-</span><span class="n">sha2</span><span class="o">-</span><span class="n">nistp256</span> <span class="n">AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAy</span> <span class="n">NTYAAABBBNAdpmhHLWgwwiUf8nU4xr9G1HUvbsWMoVpyUMgcg64Foh5hUCYTX6VvxZdPO2S</span><span class="o">+</span><span class="n">fGZ2abtoz1LCkeEy3mAck0k</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>Just delete the entire line.  Try the ssh connection again.  You should get the <code class="docutils literal"><span class="pre">are</span> <span class="pre">you</span> <span class="pre">sure</span> <span class="pre">you</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">connect</span></code> prompt.  Your computer will record the new host key.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Troubleshooting-SSH-login.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

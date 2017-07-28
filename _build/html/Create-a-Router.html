@@ -1,0 +1,144 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Create Router &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="create-router">
+<span id="create-router"></span><h1>Create Router<a class="headerlink" href="#create-router" title="Permalink to this headline">¶</a></h1>
+<p>A router acts as a gateway for external connectivity.  By connecting your private network to the public network via a router, you can connect your instance to the Internet, install packages, etc. without needing to associate it with a public IP address.</p>
+<p>From the Network Topology page click on Create Router.</p>
+<p>Give your router a name that indicates what project it is attached to.</p>
+<p>From the External Network dropdown, select the 'public' network, and click Create.</p>
+<!-- img out of date
+<img src=http://i.imgur.com/lDlSD3A.png> 
+-->
+[[tutorial_screenshots/kilo/create_router.png|Create Router]]<p>You should now see the router in the Network Topology view.  (It also appears under Project -&gt; Network -&gt; Routers).</p>
+<p>Notice that it is now connected to the public network, but not your private network.</p>
+<!-- img out of date
+<img src=http://i.imgur.com/uqarUe9.png>
+-->
+[[tutorial_screenshots/kilo/network_topology_03.png|Network Topology with Router]]<!-- info out of date
+### Set Router Gateway
+Navigate to Project -> Network -> Routers.<p>Need to setup a gateway to attach router to the Public Network.For the new router you just created, click on &quot;Set Gateway&quot; under Actions box.Choose the external network &quot;pubnet1&quot;.</p>
+<p><img src=http://i.imgur.com/BALYCGn.png></p>
+<p>Click on Set Gateway.
+--&gt;</p>
+</div>
+<div class="section" id="set-internal-interface-on-the-router">
+<span id="set-internal-interface-on-the-router"></span><h1>Set Internal Interface on the Router<a class="headerlink" href="#set-internal-interface-on-the-router" title="Permalink to this headline">¶</a></h1>
+<p>In order to route between your private network and the outside world, you must give the router an interface on your private network.  From the Network Topology view, click on the router you just created, and click 'Add Interface' on the popup that appears.</p>
+<!--img out of date
+<img src=http://i.imgur.com/j4kNfCX.png>
+-->
+[[tutorial_screenshots/kilo/add_interface_01.png|Add Interface]]<p>Choose your subnet from drop down list.</p>
+<!--img out of date
+<img src=http://i.imgur.com/5lu0DYh.png>
+-->
+[[tutorial_screenshots/kilo/add_interface_02.png|Add Interface]]<p>Click &quot;Add Interface.&quot;  The Router will now appear connected to the private network in Network Topology.</p>
+<!--img out of date
+<img src=http://i.imgur.com/wwmvxyt.png>
+--><!--img out of date
+<img src=http://i.imgur.com/pMqWOAx.png>
+-->
+[[tutorial_screenshots/kilo/network_topology_04.png]]<p>You can also access more information about the router by navigating to Networks --&gt; Routers and choosing it from the list.</p>
+<p>[[tutorial_screenshots/kilo/routers-interfaces.png|Routers]]</p>
+<hr class="docutils" />
+<div class="section" id="next-security-groups">
+<span id="next-security-groups"></span><h2>Next: [[Security Groups]]<a class="headerlink" href="#next-security-groups" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-set-up-a-private-network">
+<span id="previous-set-up-a-private-network"></span><h3>Previous:  [[Set up a Private Network]]<a class="headerlink" href="#previous-set-up-a-private-network" title="Permalink to this headline">¶</a></h3>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Create-a-Router.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

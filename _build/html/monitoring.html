@@ -1,0 +1,163 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a>
+Ref: &lt;&gt;</p>
+<ol>
+<li><p class="first">Create a VM running the cloud forms image.</p>
+</li>
+<li><ol class="first simple">
+<li>add a service account in openshift
+oadm new-project management-infra --description=&quot;Management Infrastructure&quot;</li>
+</ol>
+<p>oc create -n management-infra -f - &lt;&lt;EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+name: management-admin
+EOF</p>
+<p>oc create -f - &lt;&lt;EOF
+apiVersion: v1
+kind: ClusterRole
+metadata:
+name: management-infra-admin
+rules:</p>
+<ul class="simple">
+<li>resources:<ul>
+<li>pods/proxy
+verbs:</li>
+<li>'*'
+EOF</li>
+</ul>
+</li>
+</ul>
+<p>oadm policy add-role-to-user -n management-infra admin -z management-admin
+oadm policy add-role-to-user -n management-infra management-infra-admin -z management-admin
+oadm policy add-cluster-role-to-user cluster-reader -z management-admin
+oadm policy add-scc-to-user privileged system:serviceaccount:management-infra:management-admin</p>
+</li>
+<li><p class="first">get the token for the service account:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">get</span> <span class="o">-</span><span class="n">n</span> <span class="n">management</span><span class="o">-</span><span class="n">infra</span> <span class="n">sa</span><span class="o">/</span><span class="n">management</span><span class="o">-</span><span class="n">admin</span> <span class="o">--</span><span class="n">template</span><span class="o">=</span><span class="s1">&#39;{{range .secrets}}{{printf &quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&quot; .name}}{{end}}&#39;</span>
+</pre></div>
+</div>
+<p>This returns:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">management</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">dockercfg</span><span class="o">-</span><span class="n">xxxxxx</span>
+ <span class="n">management</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">xxxxxx</span>
+</pre></div>
+</div>
+<p>Use the management-admin-token-*</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">get</span> <span class="o">-</span><span class="n">n</span> <span class="n">management</span><span class="o">-</span><span class="n">infra</span> <span class="n">secrets</span> <span class="n">management</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">xxxxxx</span> <span class="o">--</span><span class="n">template</span><span class="o">=</span><span class="s1">&#39;{{.data.token}}&#39;</span> <span class="o">|</span> <span class="n">base64</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>This returns the token.</p>
+</li>
+<li><p class="first">Install/enable metrics using defaults and persistent storage:</p>
+<p>ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml -e openshift_metrics_install_metrics=True -e openshift_metrics_hawkular_hostname=hawkular-metrics.apps.osh.massopen.cloud -e openshift_metrics_cassandra_storage_type=pv</p>
+</li>
+<li><p class="first">Deploy agents to the nodes:</p>
+<p>a) gather 2 config files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openshift</span><span class="o">/</span><span class="n">origin</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">enterprise</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">-</span><span class="n">configmap</span><span class="o">.</span><span class="n">yaml</span>
+ <span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openshift</span><span class="o">/</span><span class="n">origin</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">enterprise</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">/</span><span class="n">hawkular</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">agent</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>b) add to default project
+oc create -f hawkular-openshift-agent-configmap.yaml -n default
+oc create -f hawkular-openshift-agent.yaml -n default</p>
+</li>
+<li><p class="first">Deploy the heapster endpoint (the router on the master)
+oadm router management-metrics -n default --service-account=router --ports='443:5000' --selector='kubernetes.io/hostname=<master>' --stats-port=1937 --host-network=false</p>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/monitoring.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

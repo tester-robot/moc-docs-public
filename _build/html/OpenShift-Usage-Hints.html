@@ -1,0 +1,129 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>This page lists a few hints as to how to do things using open shift.</p>
+<ol>
+<li><p class="first">To run the containers as root (useful for debugging, not useful for running in production):</p>
+<p>Edit the dc/<pod name></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="p">:</span><span class="n">containers</span><span class="p">:</span><span class="n">securityContext</span><span class="p">:</span><span class="n">privileged</span><span class="p">:</span><span class="n">true</span>
+</pre></div>
+</div>
+<p>rollout the pod:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">rollout</span> <span class="n">latest</span> <span class="o">&lt;</span><span class="n">dc</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>or press the deploy option (in the OpenShift GUI).</p>
+</li>
+<li><p class="first">To run a pod on specific node/nodes, add that/those node/nodes into a new region.</p>
+<p>Edit the dc/<pod name></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="p">:</span><span class="n">nodeSelector</span><span class="p">:</span><span class="n">region</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">region</span> <span class="n">name</span><span class="o">&gt;</span>      
+</pre></div>
+</div>
+<p>rollout the pod:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">rollout</span> <span class="n">latest</span> <span class="o">&lt;</span><span class="n">dc</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>or press the deploy option (in the OpenShift GUI).</p>
+</li>
+<li><p class="first">Using Host Volumes</p>
+<p>Host directory denotes the host address on which the pod is running, in our case- the <strong>Node</strong>.
+For pods to share data, mount the directory using host directories.
+Also, they should be on the same node to access the volume. You also need elevated privileges for accessing host directories.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">volume</span> <span class="n">dc</span><span class="o">/&lt;</span><span class="n">dc</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">add</span> <span class="o">--</span><span class="n">mount</span><span class="o">-</span><span class="n">path</span><span class="o">=&lt;</span><span class="n">directory</span> <span class="n">address</span> <span class="n">on</span> <span class="n">the</span> <span class="n">pod</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">path</span><span class="o">==&lt;</span><span class="n">directory</span> <span class="n">address</span> <span class="n">on</span> <span class="n">the</span> <span class="n">node</span><span class="o">&gt;</span> 
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/OpenShift-Usage-Hints.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

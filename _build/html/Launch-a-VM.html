@@ -1,0 +1,162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Background &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="background">
+<span id="background"></span><h1>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h1>
+<p>To start a VM, we will need a base image.  MOC has made several Public images available to users.</p>
+</div>
+<div class="section" id="launch-an-instance">
+<span id="launch-an-instance"></span><h1>Launch an Instance<a class="headerlink" href="#launch-an-instance" title="Permalink to this headline">¶</a></h1>
+<p>Navigate: Project -&gt; Compute -&gt; Images.  Make sure you are on the Public tab.</p>
+<p>[[tutorial_screenshots/kilo/base_images_public.png]]</p>
+<p>Click Launch Instance next to the public image of your choice.  In the example, we chose RHEL7.1.</p>
+<ul class="simple">
+<li><strong>Important</strong>: There are multiple tabs along the top of the the pop up window.  Make sure you review all of them as per instructions before clicking on Launch!  Otherwise, your launched VM may be inaccessible.</li>
+</ul>
+<div class="section" id="details">
+<span id="details"></span><h2>Details:<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>Give your instance a name.</p>
+<p>[[tutorial_screenshots/mitaka/launch_details.png]]</p>
+</div>
+<div class="section" id="source">
+<span id="source"></span><h2>Source:<a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h2>
+<p>Double check that in the dropdown &quot;Select Boot Source,&quot; &quot;Image&quot; is selected. Also, make sure that under &quot;Create New Volume,&quot; that &quot;No&quot; is selected.</p>
+<p>[[tutorial_screenshots/mitaka/launch_source.png]]</p>
+</div>
+<div class="section" id="flavor">
+<span id="flavor"></span><h2>Flavor:<a class="headerlink" href="#flavor" title="Permalink to this headline">¶</a></h2>
+<p>Choose m1.small from the 'Flavor' tab by clicking on the &quot;+&quot; icon.</p>
+<p>[[tutorial_screenshots/mitaka/launch_flavor_01.png]]</p>
+<p>The default m1.tiny flavor is too small for the base images which are available.  m1.small has enough resources for most purposes, so you should choose that unless you explicitly need more.</p>
+<p>If you find later that a custom flavor would help you use your resources more effectively, you can contact moc-kaizen-l&#64;bu.edu to request that the admins create a new flavor.</p>
+<p>After choosing m1.small, you should see it moved up to &quot;Allocated&quot;.</p>
+<p>[[tutorial_screenshots/mitaka/launch_flavor_02.png]]</p>
+</div>
+<div class="section" id="networking">
+<span id="networking"></span><h2>Networking:<a class="headerlink" href="#networking" title="Permalink to this headline">¶</a></h2>
+<p>Make sure the Private Network you just created is moved up to &quot;Allocated&quot;. If not, you can click on the &quot;+&quot; icon in &quot;Available&quot;.</p>
+<p>[[tutorial_screenshots/mitaka/launch_networks.png]]</p>
+</div>
+<div class="section" id="security-groups">
+<span id="security-groups"></span><h2>Security Groups:<a class="headerlink" href="#security-groups" title="Permalink to this headline">¶</a></h2>
+<p>Make sure to add the security group where you enabled SSH.</p>
+<p>[[tutorial_screenshots/mitaka/launch_security.png]]</p>
+</div>
+<div class="section" id="key-pair">
+<span id="key-pair"></span><h2>Key Pair:<a class="headerlink" href="#key-pair" title="Permalink to this headline">¶</a></h2>
+<p>Add the key pair you want to use with this VM.  Openstack currently only supports adding a single key pair. We will discuss how to add additional public keys <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/SSH-to-Cloud-VM#more-ssh-keys">later in the tutorial</a>.</p>
+<p>[[tutorial_screenshots/mitaka/launch_key.png]]</p>
+</div>
+<div class="section" id="configuration-and-metadata">
+<span id="configuration-and-metadata"></span><h2>Configuration and Metadata:<a class="headerlink" href="#configuration-and-metadata" title="Permalink to this headline">¶</a></h2>
+<p>Ignore these two tabs for now.</p>
+<p>You are now ready to launch your VM - go ahead and click &quot;Launch Instance&quot;!</p>
+<p>On a successful launch you would be redirected to Compute -&gt; Instances taband can see the VM spawning.</p>
+<p>[[tutorial_screenshots/kilo/launch_spawning.png]]</p>
+<p>Once your VM is successfully running you will see the <strong>Power State</strong> changes from
+&quot;No State&quot; to &quot;running&quot;.</p>
+<p>[[tutorial_screenshots/kilo/launch_running.png]]</p>
+<p>Good job!</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="next-assign-a-floating-ip">
+<span id="next-assign-a-floating-ip"></span><h2>Next: [[Assign a Floating IP]]<a class="headerlink" href="#next-assign-a-floating-ip" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-create-a-key-pair">
+<span id="previous-create-a-key-pair"></span><h3>Previous: [[Create a Key Pair]]<a class="headerlink" href="#previous-create-a-key-pair" title="Permalink to this headline">¶</a></h3>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Launch-a-VM.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

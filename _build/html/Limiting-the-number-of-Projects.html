@@ -1,0 +1,128 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP: <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<p>Limiting the number of projects a user can have.</p>
+<p>On each master do the following:</p>
+<ol>
+<li><p class="first">Ensure the new-project-template has the following line:
+objects: kind: Project, metadata: annotations: {...&quot;openshift.io/requester&quot;: &quot;${PROJECT_REQUESTING_USER}&quot;...}</p>
+</li>
+<li><p class="first">Add the following to the /etc/origin/master/master-config.yaml file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">admissionConfig</span><span class="p">:</span>
+   <span class="n">pluginConfig</span><span class="p">:</span>
+     <span class="n">ProjectRequestLimit</span><span class="p">:</span>
+       <span class="n">configuration</span><span class="p">:</span>
+         <span class="n">apiVersion</span><span class="p">:</span> <span class="n">v1</span>
+         <span class="n">kind</span><span class="p">:</span> <span class="n">ProjectRequestLimitConfig</span>
+         <span class="n">limits</span><span class="p">:</span>
+         <span class="o">-</span> <span class="n">selector</span><span class="p">:</span>
+             <span class="n">level</span><span class="p">:</span> <span class="n">admin</span>
+         <span class="o">-</span> <span class="n">selector</span><span class="p">:</span>
+             <span class="n">level</span><span class="p">:</span> <span class="n">advanced</span>
+           <span class="n">maxProjects</span><span class="p">:</span> <span class="mi">10</span>
+         <span class="o">-</span> <span class="n">maxProjects</span><span class="p">:</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>This means that user accounts labeled with admin can create an unlimited number of projects, user accounts labeled with &quot;advance&quot; can create 10 projects, and all other user accounts can create only 2 projects.</p>
+</li>
+<li><p class="first">restart the master:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">master</span><span class="o">-</span><span class="n">api</span>
+ <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">master</span><span class="o">-</span><span class="n">controllers</span> 
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Limiting-the-number-of-Projects.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,158 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP&lt;&gt;</p>
+<p>reference: <a class="reference external" href="https://docs.openshift.com/container-platform/3.5/install_config/aggregate_logging_sizing.html">https://docs.openshift.com/container-platform/3.5/install_config/aggregate_logging_sizing.html</a></p>
+<ol>
+<li><p class="first">disable logging:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ansible</span><span class="o">-</span><span class="n">playbook</span> \
+     <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">ansible</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">ansible</span><span class="o">/</span><span class="n">playbooks</span><span class="o">/</span><span class="n">byo</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">cluster</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">logging</span><span class="o">.</span><span class="n">yml</span> \
+     <span class="o">-</span><span class="n">e</span> <span class="n">openshift_logging_install_logging</span><span class="o">=</span><span class="kc">False</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create project:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oadm</span> <span class="n">new</span><span class="o">-</span><span class="n">project</span> <span class="n">logging</span> <span class="o">--</span><span class="n">node</span><span class="o">-</span><span class="n">selector</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+<p>note the --node-selector=&quot;&quot;, this will distribute logging across all of the nodes in the cluster.</p>
+</li>
+<li><p class="first">switch to the logging project:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">project</span> <span class="n">logging</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">added the following to the /etc/ansible/hosts file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="c1">#aggregated logging</span>
+ <span class="n">openshift_logging_install_logging</span><span class="o">=</span><span class="kc">True</span>
+ <span class="n">openshift_logging_curator_default_days</span><span class="o">=</span><span class="mi">7</span>
+ <span class="n">openshift_logging_kibana_hostname</span><span class="o">=</span><span class="n">kibana</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">osh</span><span class="o">.</span><span class="n">massopen</span><span class="o">.</span><span class="n">cloud</span>
+ <span class="n">openshift_logging_kibana_ops_hostname</span><span class="o">=</span><span class="n">kibana</span><span class="o">-</span><span class="n">ops</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">osh</span><span class="o">.</span><span class="n">massopen</span><span class="o">.</span><span class="n">cloud</span>
+ <span class="n">openshift_logging_kibana_replica_count</span><span class="o">=</span><span class="mi">0</span>
+ <span class="n">openshift_logging_es_cluster_size</span><span class="o">=</span><span class="mi">3</span>
+ <span class="n">openshift_logging_namespace</span><span class="o">=</span><span class="n">logging</span>
+ <span class="n">openshift_logging_es_pvc_prefix</span><span class="o">=</span><span class="n">logging</span><span class="o">-</span><span class="n">es</span><span class="o">-</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Setting up elastic search with privileged account and persistent storage:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">adm</span> <span class="n">policy</span> <span class="n">add</span><span class="o">-</span><span class="n">scc</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">user</span> <span class="n">privileged</span> <span class="n">system</span><span class="p">:</span><span class="n">serviceaccount</span><span class="p">:</span><span class="n">logging</span><span class="p">:</span><span class="n">aggregated</span><span class="o">-</span><span class="n">logging</span><span class="o">-</span><span class="n">elasticsearch</span>
+
+ <span class="n">oc</span> <span class="n">scale</span> <span class="n">dc</span><span class="o">/</span><span class="n">logging</span><span class="o">-</span><span class="n">es</span><span class="o">-</span><span class="mi">4</span><span class="n">o9ou402</span> <span class="o">--</span><span class="n">replicas</span><span class="o">=</span><span class="mi">0</span>
+ <span class="n">oc</span> <span class="n">patch</span> <span class="n">dc</span><span class="o">/</span><span class="n">logging</span><span class="o">-</span><span class="n">es</span><span class="o">-</span><span class="mi">4</span><span class="n">o9ou402</span> <span class="o">-</span><span class="n">p</span> <span class="s1">&#39;{&quot;spec&quot;:{&quot;template&quot;:{&quot;spec&quot;:{&quot;containers&quot;:[{\ </span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;elasticsearch&quot;</span><span class="p">,</span><span class="s2">&quot;securityContext&quot;</span><span class="p">:{</span><span class="s2">&quot;privileged&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">}}]}}}}</span><span class="s1">&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">run the ansible script:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">ansible</span><span class="o">-</span><span class="n">playbook</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">ansible</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">ansible</span><span class="o">/</span><span class="n">playbooks</span><span class="o">/</span><span class="n">byo</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">cluster</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">logging</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">due to a bug in the ansible scripts, logging was failing with this entry in the log files:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="ne">Exception</span> <span class="ow">in</span> <span class="n">thread</span> <span class="s2">&quot;main&quot;</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">RuntimeException</span><span class="p">:</span> <span class="n">Unable</span> <span class="n">to</span> <span class="n">load</span> <span class="n">index</span> <span class="n">mapping</span> <span class="k">for</span> <span class="n">io</span><span class="o">.</span><span class="n">fabric8</span><span class="o">.</span><span class="n">elasticsearch</span><span class="o">.</span><span class="n">kibana</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">empty</span><span class="o">.</span>  <span class="n">The</span> <span class="n">key</span> <span class="n">was</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">settings</span> <span class="ow">or</span> <span class="n">it</span> <span class="n">specified</span> <span class="n">a</span> <span class="n">file</span> <span class="n">that</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">exists</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>as per the following commit to fix this issue:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openshift</span><span class="o">/</span><span class="n">openshift</span><span class="o">-</span><span class="n">ansible</span><span class="o">/</span><span class="n">pull</span><span class="o">/</span><span class="mi">4657</span><span class="o">/</span><span class="n">files</span>       
+</pre></div>
+</div>
+<p>Updated the scripts, and added the following line to /usr/share/ansible/openshift-ansible/roles/openshift_logging/templates/elasticsearch.yml.j2 (line 43):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">io</span><span class="o">.</span><span class="n">fabric8</span><span class="o">.</span><span class="n">elasticsearch</span><span class="o">.</span><span class="n">kibana</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">index_patterns</span><span class="o">/</span><span class="n">com</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">viaq</span><span class="o">-</span><span class="n">openshift</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="n">pattern</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Aggregated-Logging.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

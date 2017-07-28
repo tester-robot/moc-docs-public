@@ -1,0 +1,126 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>up:<a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<ul>
+<li><p class="first">To add users to a role to a project:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oadm</span> <span class="n">policy</span> <span class="n">add</span><span class="o">-</span><span class="n">role</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">user</span> <span class="o">&lt;</span><span class="n">role</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">user</span> <span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">project</span> <span class="o">&lt;</span><span class="n">project</span> <span class="n">name</span><span class="o">&gt;</span>
+ <span class="n">oc</span> <span class="n">get</span> <span class="n">users</span>      <span class="c1">#list the users</span>
+ <span class="n">oadm</span> <span class="n">policy</span> <span class="n">add</span><span class="o">-</span><span class="n">role</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">user</span> <span class="n">admin</span> <span class="o">&lt;</span><span class="n">user</span> <span class="n">name</span> <span class="kn">from</span> <span class="nn">oc</span> <span class="n">get</span> <span class="n">users</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">To create an anyuid user
+ref: <a class="reference external" href="https://blog.openshift.com/understanding-service-accounts-sccs/">https://blog.openshift.com/understanding-service-accounts-sccs/</a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">create</span> <span class="n">serviceaccount</span> <span class="n">useroot</span>
+ <span class="n">oc</span> <span class="n">adm</span> <span class="n">policy</span> <span class="n">add</span><span class="o">-</span><span class="n">scc</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">user</span> <span class="n">anyuid</span> <span class="o">-</span><span class="n">z</span> <span class="n">useroot</span>
+</pre></div>
+</div>
+<p>To use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">patch</span> <span class="n">dc</span><span class="o">/</span><span class="n">myAppNeedsRoot</span> <span class="o">--</span><span class="n">patch</span> <span class="s1">&#39;{&quot;spec&quot;:{&quot;template&quot;:{&quot;spec&quot;:{&quot;serviceAccountName&quot;: &quot;useroot&quot;}}}}&#39;</span>
+</pre></div>
+</div>
+<p>or you can do</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">edit</span> <span class="n">dc</span><span class="o">/</span><span class="n">myAppNeedsRoot</span>
+</pre></div>
+</div>
+<p>To edit directly.</p>
+</li>
+</ul>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/configuring-users-(also-anyuid).md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

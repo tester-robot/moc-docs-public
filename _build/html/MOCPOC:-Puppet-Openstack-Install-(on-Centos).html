@@ -1,0 +1,217 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Start &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="start">
+<span id="start"></span><h1>Start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installing-puppet-on-centos-6-4">
+<span id="installing-puppet-on-centos-6-4"></span><h2>Installing Puppet on centos 6.4<a class="headerlink" href="#installing-puppet-on-centos-6-4" title="Permalink to this headline">¶</a></h2>
+<p>(For illustrative purposes, we started with two kickstart-clean boxes: 8, 10.)</p>
+<p>Add the puppet labs, RDO, and EPEL repos on master and client, using the following commands.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">rpm</span> <span class="o">-</span><span class="n">ivh</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">yum</span><span class="o">.</span><span class="n">puppetlabs</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">el</span><span class="o">/</span><span class="mi">6</span><span class="o">/</span><span class="n">products</span><span class="o">/</span><span class="n">i386</span><span class="o">/</span><span class="n">puppetlabs</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="mi">6</span><span class="o">-</span><span class="mf">6.</span><span class="n">noarch</span><span class="o">.</span><span class="n">rpm</span>
+<span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">rdo</span><span class="o">.</span><span class="n">fedorapeople</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">openstack</span><span class="o">/</span><span class="n">openstack</span><span class="o">-</span><span class="n">grizzly</span><span class="o">/</span><span class="n">rdo</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="n">grizzly</span><span class="o">.</span><span class="n">rpm</span>
+<span class="n">rpm</span> <span class="o">-</span><span class="n">Uvh</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">fedoraproject</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">epel</span><span class="o">/</span><span class="mi">6</span><span class="o">/</span><span class="n">i386</span><span class="o">/</span><span class="n">epel</span><span class="o">-</span><span class="n">release</span><span class="o">-</span><span class="mi">6</span><span class="o">-</span><span class="mf">8.</span><span class="n">noarch</span><span class="o">.</span><span class="n">rpm</span>
+</pre></div>
+</div>
+<p>Install and run the Puppet Master, rake, and git. Run the Puppet Master, and configure it to run on startup:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">puppet</span><span class="o">-</span><span class="n">server</span> <span class="n">rake</span> <span class="n">git</span>
+<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">init</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">puppetmaster</span> <span class="n">start</span>
+<span class="n">puppet</span> <span class="n">resource</span> <span class="n">service</span> <span class="n">puppetmaster</span> <span class="n">ensure</span><span class="o">=</span><span class="n">running</span> <span class="n">enable</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+<p>Install puppet on the client:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">puppet</span>
+</pre></div>
+</div>
+<p>Run the following iptables command on the SERVER to ensure that the port is open for signing certs. This command is moronically excessive, but it is the only thing which we have found to work consistently.  It also prevents an annoying MySQL error during installation.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">iptables</span> <span class="o">-</span><span class="n">I</span> <span class="n">INPUT</span> <span class="o">-</span><span class="n">m</span> <span class="n">tcp</span> <span class="o">-</span><span class="n">p</span> <span class="n">tcp</span> <span class="o">-</span><span class="n">j</span> <span class="n">ACCEPT</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal"><span class="pre">/etc/hosts</span></code> on both machines add <code class="docutils literal"><span class="pre">127.0.1.1</span></code> as their respective hostnames. On the client also add the IP and hostname of the master.  For example, on client moc-node-9 with server moc-node-11, under domain name <code class="docutils literal"><span class="pre">moc.bu.edu</span></code>, add</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">1.1</span>    <span class="n">moc</span><span class="o">-</span><span class="n">node</span><span class="o">-</span><span class="mf">9.</span><span class="n">moc</span><span class="o">.</span><span class="n">bu</span><span class="o">.</span><span class="n">edu</span>
+<span class="mf">192.168</span><span class="o">.</span><span class="mf">3.9</span>  <span class="n">moc</span><span class="o">-</span><span class="n">node</span><span class="o">-</span><span class="mf">9.</span><span class="n">moc</span><span class="o">.</span><span class="n">bu</span><span class="o">.</span><span class="n">edu</span>
+<span class="mf">192.168</span><span class="o">.</span><span class="mf">3.11</span> <span class="n">moc</span><span class="o">-</span><span class="n">node</span><span class="o">-</span><span class="mf">11.</span><span class="n">moc</span><span class="o">.</span><span class="n">bu</span><span class="o">.</span><span class="n">edu</span>
+</pre></div>
+</div>
+<p>Add to <code class="docutils literal"><span class="pre">/etc/puppet/puppet.conf</span></code> (on BOTH client and master) the following lines to the agent section.  (For example, in our setup, <code class="docutils literal"><span class="pre">puppet-master-hostname</span></code> is <code class="docutils literal"><span class="pre">moc-node-9.moc.bu.edu</span></code>.)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">server</span><span class="o">=&lt;</span><span class="n">puppet</span><span class="o">-</span><span class="n">master</span><span class="o">-</span><span class="n">hostname</span><span class="o">&gt;</span>
+<span class="n">report</span><span class="o">=</span><span class="n">true</span>
+<span class="n">pluginsync</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+<p>Make sure to use FQDNs in <code class="docutils literal"><span class="pre">/etc/hosts</span></code> and <code class="docutils literal"><span class="pre">/etc/puppet/puppet.conf</span></code>.  Furthermore, make sure that your DHCP server or static network configuration sets both the domain name and the domain name to search correctly.</p>
+<p>On the client, run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">agent</span> <span class="o">--</span><span class="n">test</span> <span class="o">--</span><span class="n">waitforcert</span> <span class="mi">20</span>
+</pre></div>
+</div>
+<p>to send a cert to the master and wait 20 seconds to pull a response.  Then on the master, run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">cert</span> <span class="nb">list</span>
+</pre></div>
+</div>
+<p>to find the cert needing a signature, and sign it with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">cert</span> <span class="n">sign</span> <span class="o">&lt;</span><span class="n">hostname</span> <span class="n">of</span> <span class="n">client</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The puppet master-client connection is now complete, and we're ready for installation of OpenStack.</p>
+</div>
+<div class="section" id="installing-openstack">
+<span id="installing-openstack"></span><h2>Installing Openstack<a class="headerlink" href="#installing-openstack" title="Permalink to this headline">¶</a></h2>
+<p>Start by installing the <code class="docutils literal"><span class="pre">puppetlabs/openstack</span></code> module on the master.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">module</span> <span class="n">install</span> <span class="n">puppetlabs</span><span class="o">/</span><span class="n">openstack</span>
+</pre></div>
+</div>
+<p>Put your site manifest file at <code class="docutils literal"><span class="pre">/etc/puppet/manifests/site.pp</span></code> .  Ours is a highly edited version of <code class="docutils literal"><span class="pre">/etc/puppet/modules/openstack/tests/site.pp</span></code>, which is in the repo as <code class="docutils literal"><span class="pre">site.pp</span></code>.  Finally, deploy the install by running the following on BOTH machines.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">puppet</span> <span class="n">agent</span> <span class="o">-</span><span class="n">t</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="errors-we-ve-encountered">
+<span id="errors-we-ve-encountered"></span><h2>Errors we've encountered<a class="headerlink" href="#errors-we-ve-encountered" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Running <code class="docutils literal"><span class="pre">puppet</span> <span class="pre">agent</span> <span class="pre">-t</span></code> on the master or client<ul>
+<li>Error: Failed to apply catalog: getaddrinfo: Name or service not known<ul>
+<li>Had to edit master's <code class="docutils literal"><span class="pre">puppet.conf</span></code> to include who the master is. This is fixed above</li>
+</ul>
+</li>
+<li>Lots of cert errors: specifically master not seeing / responding to client cert request, but generate says that the client has an unsigned cert waiting<ul>
+<li>This is just SSL problems, the solution is just destroy and remake all offending files</li>
+<li>Try to sign all certs. Clear all certs. Remove <code class="docutils literal"><span class="pre">/var/lib/puppet/ssl/</span></code> on both master and client. Restart puppetmaster service. Should work from there.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Running <code class="docutils literal"><span class="pre">puppet</span> <span class="pre">agent</span> <span class="pre">-t</span> <span class="pre">--certname</span> <span class="pre">moc-node-8&quot;</span></code><ul>
+<li>Error: Could not retrieve catalog from remote server: Error 400 on SERVER: Invalid parameter export_resources at <code class="docutils literal"><span class="pre">/etc/puppet/manifests/site.pp:86</span></code> on node moc-node-8<ul>
+<li>Apparently <code class="docutils literal"><span class="pre">export_resources</span></code> isn't a valid option? Current fix is to simply remove it</li>
+<li>Should look more into</li>
+</ul>
+</li>
+<li>Error: Could not retrieve catalog from remote server: Error 400 on SERVER: Must pass <code class="docutils literal"><span class="pre">secret_key</span></code> to <code class="docutils literal"><span class="pre">Class[Openstack::Controller]</span></code> at <code class="docutils literal"><span class="pre">/etc/puppet/manifests/site.pp:86</span></code> on node moc-node-8<ul>
+<li>The default site.pp doesn't include passing <code class="docutils literal"><span class="pre">secret_key</span></code> in the controller, the included <code class="docutils literal"><span class="pre">site.pp</span></code> has this fixed</li>
+<li>Should look more into</li>
+</ul>
+</li>
+<li>Error: Failed to apply catalog: Parameter name failed on Database_user[root&#64;]: Invalid database user root&#64; at /etc/puppet/modules/mysql/manifests/server/account_security.pp:13<ul>
+<li>We have a perhaps partial workaround, which is to eliminate the two lines near the beginning of the file that contain <code class="docutils literal"><span class="pre">{::fqdn}</span></code>.  George suspects that this may be because we are not setting fqdn anywhere, and that perhaps we should be.</li>
+<li>This is now fully solved, and integrated into the text.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>After finishing the install, Horizon is broken.  This is due to SELinux preventing httpd from communicating with keystone.  Brute-force solution: <code class="docutils literal"><span class="pre">setenforce</span> <span class="pre">0</span></code>.  Only do this if you want Adam to kill you.</li>
+<li>If you get an error, that nova/rabbitmq.pp is looking for rabbitmq::server and it doesn't exist, it's because you're using too recent of a release of the puppetlabs/rabbitmq module.  v2.1.0 works and v3.0.0-rc1 and rc2 both do NOT work.</li>
+</ul>
+</div>
+<div class="section" id="things-that-are-currently-mis-configured">
+<span id="things-that-are-currently-mis-configured"></span><h2>Things that are currently mis-configured<a class="headerlink" href="#things-that-are-currently-mis-configured" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The floating IP range is incorrect.<ul>
+<li>It should be able to be a range of IPs in a larger subnet:  ideally something like 192.168.3.170-172.  The problem:  I don't know how to make it not be a CIDR, and I don't understand how it's being set.  The given CIDR eventually ends up in <code class="docutils literal"><span class="pre">/etc/nova/nova.conf</span></code> as the option <code class="docutils literal"><span class="pre">floating_range</span></code>.  But this option does not exist, according to the Grizzly documentation at http://docs.openstack.org/grizzly/openstack-compute/admin/content/list-of-compute-config-options.html .  Interestingly, the corresponding <code class="docutils literal"><span class="pre">fixed_range</span></code> is deprecated, and I'm not sure what's supposed to replace its functionality yet.</li>
+<li>It turns out that this is no longer managed in <code class="docutils literal"><span class="pre">nova.conf</span></code>.  Instead, floating IP addresses can be added to a pool on the command line.  Therefore, our site.pp no longer tries to create any floating IP addresses.</li>
+<li>It is indeed possible to reach VMs, with these floating IP addresses.</li>
+</ul>
+</li>
+<li>Instance VNC consoles are broken:  error code 1006 while connecting.</li>
+</ul>
+</div>
+<div class="section" id="future-areas-of-improvement-in-configuration">
+<span id="future-areas-of-improvement-in-configuration"></span><h2>Future areas of improvement in configuration<a class="headerlink" href="#future-areas-of-improvement-in-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>All machines should log to a single logging node, with syslog.</li>
+<li>Quantum/Neutron, Cinder, and Swift should be enabled.</li>
+<li>Nodes should be monitored with something like Nagios.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/MOCPOC:-Puppet-Openstack-Install-(on-Centos).md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,441 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>UP <a class="reference external" href="https://github.com/CCI-MOC/moc-public/wiki/OpenShift">https://github.com/CCI-MOC/moc-public/wiki/OpenShift</a></p>
+<p>Quotas are set to ensure that the docker containers conform to both usage and size restrictions of the cluster.  They are set on both the container level, the project level and sets of projects.  To set up a default quota for all new projects, search for self provisioning projects.</p>
+<p>See: <a class="reference external" href="https://github.com/openshift/origin/tree/master/examples/project-quota">https://github.com/openshift/origin/tree/master/examples/project-quota</a>
+<a class="reference external" href="https://docs.openshift.org/latest/admin_guide/managing_projects.html#template-for-new-projects">https://docs.openshift.org/latest/admin_guide/managing_projects.html#template-for-new-projects</a></p>
+<ol>
+<li><p class="first">Get the previous template:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oadm</span> <span class="n">create</span><span class="o">-</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">template</span> <span class="o">-</span><span class="n">o</span> <span class="n">yaml</span> <span class="o">&gt;</span> <span class="n">project_template_20170609</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Just for completeness, this returned:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> apiVersion: v1
+ kind: Template
+ metadata:
+   creationTimestamp: null
+   name: project-request
+ objects:
+ - apiVersion: v1
+   kind: Project
+   metadata:
+     annotations:
+       openshift.io/description: ${PROJECT_DESCRIPTION}
+       openshift.io/display-name: ${PROJECT_DISPLAYNAME}
+       openshift.io/requester: ${PROJECT_REQUESTING_USER}
+     creationTimestamp: null
+     name: ${PROJECT_NAME}
+   spec: {}
+   status: {}
+ - apiVersion: v1
+   groupNames:
+   - system:serviceaccounts:${PROJECT_NAME}
+   kind: RoleBinding
+   metadata:
+     creationTimestamp: null
+     name: system:image-pullers
+     namespace: ${PROJECT_NAME}
+   roleRef:
+     name: system:image-puller
+   subjects:
+   - kind: SystemGroup
+     name: system:serviceaccounts:${PROJECT_NAME}
+   userNames: null
+ - apiVersion: v1
+   groupNames: null
+   kind: RoleBinding
+   metadata:
+     creationTimestamp: null
+     name: system:image-builders
+     namespace: ${PROJECT_NAME}
+   roleRef:
+     name: system:image-builder
+   subjects:
+   - kind: ServiceAccount
+     name: builder
+   userNames:
+   - system:serviceaccount:${PROJECT_NAME}:builder
+ - apiVersion: v1
+   groupNames: null
+   kind: RoleBinding
+   metadata:
+     creationTimestamp: null
+     name: system:deployers
+     namespace: ${PROJECT_NAME}
+   roleRef:
+     name: system:deployer
+   subjects:
+   - kind: ServiceAccount
+     name: deployer
+   userNames:
+   - system:serviceaccount:${PROJECT_NAME}:deployer
+ - apiVersion: v1
+   groupNames: null
+   kind: RoleBinding
+   metadata:
+     creationTimestamp: null
+     name: admin
+     namespace: ${PROJECT_NAME}
+   roleRef:
+     name: admin
+   subjects:
+   - kind: User
+     name: ${PROJECT_ADMIN_USER}
+   userNames:
+   - ${PROJECT_ADMIN_USER}
+ parameters:
+ - name: PROJECT_NAME
+ - name: PROJECT_DISPLAYNAME
+ - name: PROJECT_DESCRIPTION
+ - name: PROJECT_ADMIN_USER
+ - name: PROJECT_REQUESTING_USER
+</pre></div>
+</div>
+</li>
+<li><p class="first">Here is a new project-template with limits:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="p">{</span>
+     <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;Template&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;project-request&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+                 <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="p">{</span>
+                     <span class="s2">&quot;openshift.io/description&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_DESCRIPTION}</span><span class="s2">&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;openshift.io/display-name&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_DISPLAYNAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;openshift.io/requester&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_REQUESTING_USER}</span><span class="s2">&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{},</span>
+             <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">{}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ResourceQuota&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;object-counts&quot;</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;hard&quot;</span><span class="p">:</span> <span class="p">{</span>
+                     <span class="s2">&quot;replicationcontrollers&quot;</span><span class="p">:</span> <span class="s2">&quot;50&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;services&quot;</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;secrets&quot;</span><span class="p">:</span> <span class="s2">&quot;20&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;persistentvolumeclaims&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+     <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ResourceQuota&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;compute-resources&quot;</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;hard&quot;</span><span class="p">:</span> <span class="p">{</span>
+                     <span class="s2">&quot;limits.cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;limits.memory&quot;</span><span class="p">:</span> <span class="s2">&quot;2Gi&quot;</span>
+                 <span class="p">},</span>
+                 <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="p">[</span>
+                     <span class="s2">&quot;NotTerminating&quot;</span>
+                 <span class="p">]</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ResourceQuota&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;compute-resources-timebound&quot;</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;hard&quot;</span><span class="p">:</span> <span class="p">{</span>
+                     <span class="s2">&quot;limits.cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;limits.memory&quot;</span><span class="p">:</span> <span class="s2">&quot;1536Mi&quot;</span>
+                 <span class="p">},</span>
+                 <span class="s2">&quot;scopes&quot;</span><span class="p">:</span> <span class="p">[</span>
+                     <span class="s2">&quot;Terminating&quot;</span>
+                 <span class="p">]</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;LimitRange&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;resource-limits&quot;</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;limits&quot;</span><span class="p">:</span> <span class="p">[</span>
+                     <span class="p">{</span>
+                         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Pod&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;1Gi&quot;</span>
+                         <span class="p">},</span>
+                         <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;29m&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;150Mi&quot;</span>
+                         <span class="p">}</span>
+                     <span class="p">},</span>
+                     <span class="p">{</span>
+                         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Container&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;512Mi&quot;</span>
+                         <span class="p">},</span>
+                         <span class="s2">&quot;defaultRequest&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;60m&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;307Mi&quot;</span>
+                         <span class="p">},</span>
+                         <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;1Gi&quot;</span>
+                         <span class="p">},</span>
+                         <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;29m&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;150Mi&quot;</span>
+                         <span class="p">}</span>
+                     <span class="p">},</span>
+                     <span class="p">{</span>
+                         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PersistentVolumeClaim&quot;</span><span class="p">,</span>
+                         <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="s2">&quot;1Gi&quot;</span>
+                         <span class="p">},</span>
+                         <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="s2">&quot;1Gi&quot;</span>
+                         <span class="p">}</span>
+                     <span class="p">}</span>
+                 <span class="p">]</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;RoleBinding&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;userNames&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="s2">&quot;$</span><span class="si">{PROJECT_ADMIN_USER}</span><span class="s2">&quot;</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;groupNames&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+             <span class="s2">&quot;subjects&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="p">{</span>
+                     <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;User&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_ADMIN_USER}</span><span class="s2">&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;roleRef&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;RoleBinding&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:image-pullers&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;userNames&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+             <span class="s2">&quot;groupNames&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="s2">&quot;system:serviceaccounts:$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;subjects&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="p">{</span>
+                     <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;SystemGroup&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:serviceaccounts:$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;roleRef&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:image-puller&quot;</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;RoleBinding&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:image-builders&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;userNames&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="s2">&quot;system:serviceaccount:$</span><span class="si">{PROJECT_NAME}</span><span class="s2">:builder&quot;</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;groupNames&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+             <span class="s2">&quot;subjects&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="p">{</span>
+                     <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ServiceAccount&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;builder&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;roleRef&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:image-builder&quot;</span>
+             <span class="p">}</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;RoleBinding&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;apiVersion&quot;</span><span class="p">:</span> <span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:deployers&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;$</span><span class="si">{PROJECT_NAME}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;creationTimestamp&quot;</span><span class="p">:</span> <span class="n">null</span>
+             <span class="p">},</span>
+             <span class="s2">&quot;userNames&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="s2">&quot;system:serviceaccount:$</span><span class="si">{PROJECT_NAME}</span><span class="s2">:deployer&quot;</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;groupNames&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+             <span class="s2">&quot;subjects&quot;</span><span class="p">:</span> <span class="p">[</span>
+                 <span class="p">{</span>
+                     <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ServiceAccount&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;deployer&quot;</span>
+                 <span class="p">}</span>
+             <span class="p">],</span>
+             <span class="s2">&quot;roleRef&quot;</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;system:deployer&quot;</span>
+             <span class="p">}</span>
+         <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PROJECT_NAME&quot;</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PROJECT_DISPLAYNAME&quot;</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PROJECT_DESCRIPTION&quot;</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PROJECT_ADMIN_USER&quot;</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PROJECT_REQUESTING_USER&quot;</span>
+         <span class="p">}</span>
+     <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">to load the new project template:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">oc</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">project_template</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">n</span> <span class="n">default</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Change the master-config to refer to the new project-template:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="o">...</span>
+ <span class="n">projectConfig</span><span class="p">:</span>
+   <span class="n">projectRequestTemplate</span><span class="p">:</span> <span class="s2">&quot;default/project-request&quot;</span>
+   <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart the masters (in this case both masters)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">master</span><span class="o">-</span><span class="n">api</span>
+ <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">atomic</span><span class="o">-</span><span class="n">openshift</span><span class="o">-</span><span class="n">master</span><span class="o">-</span><span class="n">controllers</span>
+</pre></div>
+</div>
+</li>
+</ol>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/Adding-Quotas.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

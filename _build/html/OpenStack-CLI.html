@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Introduction &#8212; moc-docs  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <!-- linky links -->
+[CLI Cheat Sheet]: http://docs.openstack.org/user-guide/cli-cheat-sheet.html<div class="section" id="introduction">
+<span id="introduction"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>The OpenStack CLI is designed for interactive use.  It's also possible to call it from a bash script or similar, but typically it is too slow for heavy scripting use.</p>
+</div>
+<div class="section" id="command-line-setup">
+<span id="command-line-setup"></span><h1>Command Line setup<a class="headerlink" href="#command-line-setup" title="Permalink to this headline">¶</a></h1>
+<p>To use CLI, you must set some environmental variables.  The easiest way to do this is to run the OpenStack RC script you downloaded earlier.  Find the file (by default it will be named <code class="docutils literal"><span class="pre">project-openrc.sh</span></code> where project is the name of your OpenStack project).  Source the file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio ~]$ source tutorial_project-openrc.sh
+Please enter your OpenStack Password:
+</pre></div>
+</div>
+<p>You will be prompted for the password to your OpenStack account.  Note that this just stores your entry into the environment variable - there's no validation at this stage.  If you have trouble authenticating later, try running the script again and re-enter your password, in case you made a typo.</p>
+<p>What this script does is set the following environment variables:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">OS_AUTH_URL</span>       <span class="c1"># the URL endpoint to interact with Keystone</span>
+<span class="n">OS_TENANT_ID</span>      <span class="c1"># the ID of your OpenStack project</span>
+<span class="n">OS_TENANT_NAME</span>    <span class="c1"># the name of your OpenStack project</span>
+<span class="n">OS_PROJECT_NAME</span>   <span class="c1"># the name of your OpenStack project</span>
+<span class="n">OS_USERNAME</span>       <span class="c1"># your username</span>
+<span class="n">OS_PASSWORD</span>       <span class="c1"># your password</span>
+<span class="n">OS_REGION_NAME</span>    <span class="c1"># OpenStack region name, which in our case is &#39;MOC_Kaizen&#39;</span>
+</pre></div>
+</div>
+<p>Note that &quot;project&quot; and &quot;tenant&quot; both refer to the same thing, your OpenStack project.</p>
+</div>
+<div class="section" id="openstack-hello-world">
+<span id="openstack-hello-world"></span><h1>OpenStack Hello World<a class="headerlink" href="#openstack-hello-world" title="Permalink to this headline">¶</a></h1>
+<p>To test that you have everything configured, try out some commands.  The following command lists all the images available to your project:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio ~]$ openstack image list
++--------------------------------------+------------------------------------------+--------+
+| ID                                   | Name                                     | Status |
++--------------------------------------+------------------------------------------+--------+
+| 64599610-2952-4a1f-9291-2711c966905c | Sahara: Vanilla-MOCRemix on Ubuntu 14.04 | active |
+| df9982fb-aac7-48d4-ad78-93c3105a5d68 | Sahara: Storm 0.9.2 on Ubuntu 14.04      | active |
+| 0fd4d588-77de-4567-afc4-7433ad94fb98 | Sahara: Vanilla 2.7.1 on Ubuntu 14.04    | active |
+| d47e31d3-50e4-4c73-a65c-db17c423e044 | Sahara: Vanilla 2.7.1 on CentOS 6.6      | active |
+| 599fdf40-1fd9-4cda-9d9b-8d91e76d6195 | Sahara: Spark 1.3.1 on Ubuntu 14.04      | active |
+| 0f613a03-a85b-4ce5-be65-2431d9715040 | centos_bmi                               | active |
+| 454d6106-bb8d-4cc4-a8e7-1c0c6ed126ef | centos-6.7                               | active |
+| 3dae6817-36bb-4476-b68f-e743ae5490f3 | ubuntu16.04                              | active |
+| bd62fbfb-937b-4e2c-b4c1-99c7a80841f4 | hortonworks-sandbox                      | active |
+| 07944e19-2474-47e6-8412-57f2c1826570 | cirros-0.3.4-x86_64-disk.img_alt         | active |
+| 30bbd7e6-3a33-4cc3-8cb7-35b797617ac9 | cirros-0.3.4-x86_64-disk.img             | active |
+| 3dfb6cd0-9bf8-4106-b6ef-e735542fb669 | ubuntu-14.04                             | active |
+| 895a5bd0-9508-4c39-ab1c-b19337e61068 | ubuntu-15.10                             | active |
+| 79e50158-1526-4602-b859-6465986e942c | RHEL7.1                                  | active |
+| afba46bb-8be3-4d0f-a845-a3f8ba1cd596 | Centos 7 -RAW                            | active |
+| ef8d3b1d-8639-4e3b-9129-a9aad2c717a1 | Centos 7                                 | active |
++--------------------------------------+------------------------------------------+--------+
+</pre></div>
+</div>
+<p>If you have launched some instances already, the following command shows a list of your project's instances:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio Downloads]$ openstack server list
++--------------------------------------+------------------+---------+---------------------------------------+
+| ID                                   | Name             | Status  | Networks                              |
++--------------------------------------+------------------+---------+---------------------------------------+
+| 0ec026ff-1014-4953-9660-0b6386915562 | test             | ACTIVE  | kamfonik-net=10.20.8.15               |
+| 5e1a685b-db75-4af1-8b1a-c077c1e8b9e4 | kamfonik-gw      | ACTIVE  | kamfonik-net=10.20.8.9,               |
+| 34898710-8cf9-44db-9212-32539876e17c | kamfonik-gateway | SHUTOFF | kamfonik-net=10.20.8.8                |
+| c04b34d9-b684-40a3-9873-b1bd7daf08bf | inventory-dev    | ACTIVE  | kamfonik-net=10.20.8.5                |
++--------------------------------------+------------------+---------+---------------------------------------+
+</pre></div>
+</div>
+<p>If you don't have any instances, you will get the error <code class="docutils literal"><span class="pre">list</span> <span class="pre">index</span> <span class="pre">out</span> <span class="pre">of</span> <span class="pre">range</span></code>, which is why we didn't suggest this command for your first test:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio ~]$ openstack server list
+list index out of range
+</pre></div>
+</div>
+<p>If you see this error:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio moc-public.wiki]$ openstack server list
+The request you have made requires authentication. (HTTP 401) (Request-ID: req-6a827bf3-d5e8-47f2-984c-b6edeeb2f7fb)
+</pre></div>
+</div>
+<p>Then your environment variables are likely not configured correctly.  The most common reason is that you made a typo when entering your password.  Try sourcing the rc script again and retyping it.</p>
+<p>You can type <code class="docutils literal"><span class="pre">openstack</span> <span class="pre">-h</span></code> to see a list of available commands.  There is also a useful [CLI cheat sheet] maintained in the End User guide.</p>
+<p>Note that this includes some admin-only commands. If you try one of these by mistake, you might see this output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[kamfonik@ezio ~]$ openstack user list
+You are not authorized to perform the requested action: admin_required (HTTP 403) (Request-ID: req-60ceb1b8-a90f-407a-84dd-66e0d4b40869)
+</pre></div>
+</div>
+<p>Depending on your needs for API interaction, this  might be sufficient.  If you just occasionally want to run 1 or 2 of these commands from your terminal, you can do it manually or write a quick bash script that makes use of this CLI.  However, this isn't a very optimized  way to do complex interactions with OpenStack.  For that, you want to write scripts that interact with the python bindings directly.</p>
+<p>Pro Tip: If you find yourself fiddling extensively with awk and grep to extract things like project IDs from the CLI output, it's time to move on to using the client libraries or the RESTful API directly in your scripts.</p>
+<hr class="docutils" />
+<div class="section" id="next-python-sdk">
+<span id="next-python-sdk"></span><h2>Next: [[Python SDK]]<a class="headerlink" href="#next-python-sdk" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="previous-api-access">
+<span id="previous-api-access"></span><h3>Previous: [[API Access]]<a class="headerlink" href="#previous-api-access" title="Permalink to this headline">¶</a></h3>
+<p>[[Openstack Tutorial Index]]</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">moc-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Massachusetts Open Cloud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/OpenStack-CLI.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
