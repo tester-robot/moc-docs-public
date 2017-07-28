@@ -1,0 +1,33 @@
+Massachusetts Open Cloud Account Request form (“trusted users”) 
+
+
+First name:   
+
+Last name: 
+
+Email: 
+
+MOC Kaizen Project Name: 
+
+Organization :
+
+Phone : 
+
+MOC contact/sponsor :   
+
+Student/Staff/Faculty :  
+
+Request Date: 
+
+
+Notes:
+
+Your username will be your full email address, e.g user@domain.com
+
+If no project name is specified, it will default to the ‘user’ field of your email.
+
+
+
+
+
+
